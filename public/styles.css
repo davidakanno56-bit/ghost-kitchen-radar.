@@ -1,0 +1,98 @@
+/* Custom Cyber Forensic styles & Glassmorphism */
+@layer utilities {
+  .bg-grid {
+    background-size: 32px 32px;
+    background-image: 
+      linear-gradient(to right, rgba(0, 240, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(0, 240, 255, 0.05) 1px, transparent 1px);
+  }
+
+  .glass-card {
+    background: rgba(15, 20, 32, 0.72);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(0, 240, 255, 0.14);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
+  }
+
+  .glass-card-hover:hover {
+    border-color: rgba(0, 240, 255, 0.35);
+    box-shadow: 0 12px 40px 0 rgba(0, 240, 255, 0.15);
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #06080d;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1b2438;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #00f0ff;
+}
+
+/* Cyber CRT Scanline Overlay */
+.scanline-overlay {
+  background: linear-gradient(
+    to bottom,
+    rgba(255,255,255,0),
+    rgba(255,255,255,0) 50%,
+    rgba(0, 240, 255, 0.03) 50%,
+    rgba(0, 240, 255, 0.03)
+  );
+  background-size: 100% 4px;
+}
+
+/* Glow effects */
+.glow-cyan {
+  box-shadow: 0 0 25px rgba(0, 240, 255, 0.35);
+}
+
+.glow-red {
+  box-shadow: 0 0 30px rgba(255, 26, 83, 0.4);
+}
+
+.glow-green {
+  box-shadow: 0 0 25px rgba(0, 255, 136, 0.35);
+}
+
+.glow-amber {
+  box-shadow: 0 0 25px rgba(245, 158, 11, 0.35);
+}
+
+/* 3D Tilt Card Base */
+.tilt-card {
+  transform-style: preserve-3d;
+  transition: transform 0.15s ease-out, box-shadow 0.2s ease-out;
+  will-change: transform;
+}
+
+/* Circular Gauge Ring Smooth Animation */
+#score-circle {
+  transition: stroke-dashoffset 1.4s cubic-bezier(0.25, 1, 0.5, 1), stroke 0.6s ease;
+}
+
+/* Pulse shockwave rings */
+@keyframes shockwave {
+  0% {
+    transform: scale(0.1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+.animate-shockwave {
+  animation: shockwave 1.2s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+}

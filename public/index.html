@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ghost Kitchen Radar // Lagos Surveillance Node</title>
+  
+  <!-- Three.js CDN for 3D Background Visuals -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            cyber: {
+              black: '#05070b',
+              darker: '#090d16',
+              card: '#0e1422',
+              border: '#1a243a',
+              hover: '#202c46',
+              cyan: '#00f0ff',
+              green: '#00ff88',
+              amber: '#f59e0b',
+              red: '#ff1a53',
+              purple: '#9d4edd'
+            }
+          },
+          fontFamily: {
+            mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
+            sans: ['"Inter"', 'system-ui', '-apple-system', 'sans-serif']
+          },
+          animation: {
+            'radar-spin': 'radarSpin 3s linear infinite',
+            'pulse-fast': 'pulse 1.2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'sonar-ping': 'sonarPing 2s cubic-bezier(0, 0, 0.2, 1) infinite'
+          },
+          keyframes: {
+            radarSpin: {
+              '0%': { transform: 'rotate(0deg)' },
+              '100%': { transform: 'rotate(360deg)' }
+            },
+            sonarPing: {
+              '75%, 100%': {
+                transform: 'scale(2)',
+                opacity: 0
+              }
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="bg-cyber-black text-slate-100 min-h-screen font-sans antialiased selection:bg-cyber-cyan selection:text-cyber-black flex flex-col relative overflow-x-hidden">
+  
+  <!-- 3D Three.js Background Canvas (Particle Cloud & Rotating Wireframe Globe) -->
+  <canvas id="three-canvas" class="fixed inset-0 pointer-events-none z-0"></canvas>
+
+  <!-- Cyber Scanline Overlay -->
+  <div class="fixed inset-0 pointer-events-none scanline-overlay z-10 opacity-60"></div>
+
+  <!-- Ambient Glowing Radial Gradients -->
+  <div class="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[350px] bg-cyber-cyan/8 blur-[150px] pointer-events-none z-0"></div>
+  <div class="fixed bottom-0 right-10 w-[600px] h-[400px] bg-cyber-red/8 blur-[180px] pointer-events-none z-0"></div>
+
+  <!-- Header Section -->
+  <header class="border-b border-cyber-border/80 bg-cyber-darker/80 backdrop-blur-xl sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      
+      <!-- Brand Logo / Identity -->
+      <div class="flex items-center gap-3.5">
+        <div class="relative w-10 h-10 rounded-lg bg-cyber-card/90 border border-cyber-cyan/50 flex items-center justify-center shadow-[0_0_20px_rgba(0,240,255,0.3)] group cursor-pointer">
+          <!-- Animated Radar Sweep Icon -->
+          <svg class="w-5 h-5 text-cyber-cyan" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10" stroke-opacity="0.3"></circle>
+            <circle cx="12" cy="12" r="6" stroke-opacity="0.5"></circle>
+            <circle cx="12" cy="12" r="2" class="fill-cyber-cyan"></circle>
+            <path d="M12 12 L20 6" class="animate-radar-spin origin-[12px_12px] stroke-cyber-cyan"></path>
+          </svg>
+          <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-cyber-green rounded-full animate-ping"></span>
+          <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-cyber-green rounded-full shadow-[0_0_8px_#00ff88]"></span>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="font-bold tracking-wider font-mono text-sm sm:text-base text-white">GHOST KITCHEN RADAR</span>
+            <span class="hidden sm:inline-block text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-cyber-cyan/10 text-cyber-cyan border border-cyber-cyan/40 shadow-[0_0_10px_rgba(0,240,255,0.2)]">LOS-SURVEILLANCE</span>
+          </div>
+          <p class="text-[11px] text-slate-400 font-mono tracking-tight flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-cyber-cyan animate-pulse"></span>
+            LAGOS FOOD INFRASTRUCTURE // 3D FORENSIC RADAR
+          </p>
+        </div>
+      </div>
+
+      <!-- Live Status Indicators & Audio FX Controller -->
+      <div class="flex items-center gap-2 sm:gap-3.5 font-mono text-xs">
+        
+        <!-- Synthetic Audio FX Toggle Button -->
+        <button 
+          id="audio-toggle-btn"
+          type="button"
+          class="flex items-center gap-1.5 bg-cyber-card/90 border border-cyber-border hover:border-cyber-cyan/60 px-2.5 py-1.5 rounded-lg text-[11px] transition-all text-slate-300 hover:text-cyber-cyan active:scale-95 shadow-sm"
+          title="Toggle Cyber Sound Effects"
+        >
+          <span id="audio-icon">🔊</span>
+          <span class="hidden sm:inline" id="audio-label">FX: ON</span>
+        </button>
+
+        <!-- Live Pulse Node -->
+        <div class="flex items-center gap-2 bg-cyber-card/90 border border-cyber-border px-2.5 py-1.5 rounded-lg backdrop-blur-md">
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyber-green opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-cyber-green shadow-[0_0_6px_#00ff88]"></span>
+          </span>
+          <span class="text-slate-300 hidden md:inline text-[11px]">RADAR:</span>
+          <span class="text-cyber-green font-bold text-[11px]" id="header-radar-status">ONLINE</span>
+        </div>
+
+        <!-- Mapped Hubs Counter -->
+        <div class="hidden sm:flex items-center gap-2 bg-cyber-card/90 border border-cyber-border px-2.5 py-1.5 rounded-lg text-[11px]">
+          <span class="text-slate-400">HUBS:</span>
+          <span class="text-cyber-cyan font-bold" id="header-hubs-count">10 FACILITIES</span>
+        </div>
+
+        <!-- Live Clock -->
+        <div class="hidden lg:flex items-center gap-1.5 bg-cyber-card/90 border border-cyber-border px-2.5 py-1.5 rounded-lg text-[11px] text-slate-300">
+          <span class="text-slate-500">WAT:</span>
+          <span id="live-clock" class="font-semibold text-slate-200">--:--:--</span>
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Main Content Wrapper -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 z-20 space-y-10">
+
+    <!-- Hero Section with Sonar Radar Sweep Canvas in Background -->
+    <section class="text-center max-w-3xl mx-auto space-y-6 pt-4 sm:pt-6 relative">
+      
+      <!-- Animated Rotating Sonar Radar Sweep Dish Canvas -->
+      <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none -z-10 flex items-center justify-center">
+        <canvas id="radar-sonar-canvas" width="620" height="620" class="opacity-35"></canvas>
+        <div id="radar-pulse-ring" class="absolute w-40 h-40 rounded-full border border-cyber-cyan opacity-0 pointer-events-none"></div>
+      </div>
+
+      <!-- Classification Tag -->
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-cyber-cyan/40 bg-cyber-cyan/10 text-cyber-cyan font-mono text-xs tracking-wider uppercase backdrop-blur-md shadow-[0_0_20px_rgba(0,240,255,0.2)]">
+        <span class="w-2 h-2 rounded-full bg-cyber-cyan animate-ping"></span>
+        <span>Commercial Food Delivery Intelligence // Lagos Surveillance Node</span>
+      </div>
+
+      <!-- Required Hero Headline -->
+      <h1 class="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-tight">
+        Who is actually cooking your <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyber-cyan via-teal-300 to-cyber-green drop-shadow-[0_0_25px_rgba(0,240,255,0.4)]">delivery food?</span>
+      </h1>
+
+      <p class="text-sm sm:text-base text-slate-300 max-w-2xl mx-auto leading-relaxed">
+        Cross-referencing food delivery apps against verified commercial extraction hoods, co-located kitchen bays, and dark commissary pods across Lekki, Victoria Island, Ikeja, and Surulere.
+      </p>
+
+      <!-- Telemetry Highlights Bar (Glassmorphic) -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 max-w-2xl mx-auto font-mono text-xs">
+        <div class="glass-card p-3 rounded-xl text-center border-cyber-border hover:border-cyber-cyan/40 transition-colors">
+          <div class="text-slate-400 text-[10px] uppercase tracking-wider">Tracked Brands</div>
+          <div class="text-lg sm:text-xl font-bold text-white mt-0.5" id="telemetry-brands">32</div>
+        </div>
+        <div class="glass-card p-3 rounded-xl text-center border-cyber-border hover:border-cyber-red/40 transition-colors">
+          <div class="text-slate-400 text-[10px] uppercase tracking-wider">Ghost Hives</div>
+          <div class="text-lg sm:text-xl font-bold text-cyber-red mt-0.5" id="telemetry-ghosts">5 Pods</div>
+        </div>
+        <div class="glass-card p-3 rounded-xl text-center border-cyber-border hover:border-cyber-amber/40 transition-colors">
+          <div class="text-slate-400 text-[10px] uppercase tracking-wider">Max in 1 Room</div>
+          <div class="text-lg sm:text-xl font-bold text-cyber-amber mt-0.5">7 Brands</div>
+        </div>
+        <div class="glass-card p-3 rounded-xl text-center border-cyber-border hover:border-cyber-green/40 transition-colors">
+          <div class="text-slate-400 text-[10px] uppercase tracking-wider">Authentic Ratio</div>
+          <div class="text-lg sm:text-xl font-bold text-cyber-green mt-0.5" id="telemetry-authentic">40%</div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Search Section & Quick-Test Suggestion Pills -->
+    <section class="max-w-3xl mx-auto space-y-4">
+      
+      <!-- Search Input Container with Glassmorphism & Neon Glow -->
+      <div class="relative glass-card rounded-2xl border border-cyber-border focus-within:border-cyber-cyan focus-within:shadow-[0_0_35px_rgba(0,240,255,0.35)] transition-all duration-300">
+        <form id="search-form" class="flex items-center p-2 sm:p-2.5 gap-2">
+          
+          <!-- Search Icon with Radar Sweep effect -->
+          <div class="pl-3.5 text-cyber-cyan flex items-center pointer-events-none">
+            <svg class="w-5 h-5 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+          </div>
+
+          <!-- Input Field -->
+          <input 
+            type="text" 
+            id="search-input"
+            class="flex-1 bg-transparent text-white placeholder-slate-500 font-sans text-sm sm:text-base focus:outline-none px-2 py-2"
+            placeholder="Inspect any restaurant brand (e.g. Midnight Burger, Terra Kulture, Suya Express)..."
+            autocomplete="off"
+            spellcheck="false"
+          />
+
+          <!-- Clear Button -->
+          <button 
+            type="button" 
+            id="clear-btn" 
+            class="hidden text-slate-500 hover:text-slate-300 p-1.5 text-sm font-mono transition-colors rounded-lg hover:bg-slate-800"
+            title="Clear search"
+          >
+            ✕
+          </button>
+
+          <!-- Scan Button -->
+          <button 
+            type="submit" 
+            id="scan-btn"
+            class="bg-cyber-cyan text-cyber-black font-mono font-bold text-xs sm:text-sm px-5 sm:px-7 py-3 rounded-xl hover:bg-white hover:shadow-[0_0_25px_rgba(0,240,255,0.6)] transition-all flex items-center gap-2 whitespace-nowrap active:scale-95 group"
+          >
+            <span>SCAN</span>
+            <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+            </svg>
+          </button>
+        </form>
+      </div>
+
+      <!-- Quick-Test Pills Section -->
+      <div class="space-y-2.5">
+        <div class="flex items-center justify-between text-xs font-mono text-slate-400 px-1">
+          <span class="flex items-center gap-1.5">
+            <span class="text-cyber-cyan text-sm">⚡</span>
+            <span>QUICK-TEST RADAR TARGETS:</span>
+          </span>
+          <span class="text-[11px] text-slate-500 hidden sm:inline">Click any pill to trigger instant radar ping & inspection</span>
+        </div>
+
+        <!-- Pills Grid / Flex -->
+        <div id="quick-pills-container" class="flex flex-wrap gap-2.5 pt-1">
+          <!-- Loading placeholder pills -->
+          <div class="h-8 w-36 bg-cyber-card/60 animate-pulse rounded-lg border border-cyber-border"></div>
+          <div class="h-8 w-44 bg-cyber-card/60 animate-pulse rounded-lg border border-cyber-border"></div>
+          <div class="h-8 w-32 bg-cyber-card/60 animate-pulse rounded-lg border border-cyber-border"></div>
+          <div class="h-8 w-40 bg-cyber-card/60 animate-pulse rounded-lg border border-cyber-border"></div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Forensic Loading / Scan Progress (Hidden by default) -->
+    <div id="scan-loader" class="hidden max-w-2xl mx-auto p-6 glass-card rounded-2xl border border-cyber-cyan/50 shadow-[0_0_40px_rgba(0,240,255,0.25)] font-mono text-xs space-y-4">
+      <div class="flex items-center justify-between border-b border-cyber-border pb-3">
+        <div class="flex items-center gap-2.5 text-cyber-cyan">
+          <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span class="font-bold tracking-wider">RUNNING FORENSIC INGESTION SWEEP...</span>
+        </div>
+        <span class="text-slate-400" id="scan-progress-step">STEP 2/4</span>
+      </div>
+      <div class="space-y-1.5 text-slate-300" id="scan-log-lines">
+        <div class="text-cyber-green">> Ingesting target brand identifier...</div>
+        <div class="text-cyber-cyan animate-pulse">> Querying physical extraction permits & shared kitchen bays...</div>
+      </div>
+    </div>
+
+    <!-- Error / Not Found Alert (Hidden by default) -->
+    <div id="error-alert" class="hidden max-w-2xl mx-auto p-5 rounded-2xl border border-cyber-red/50 bg-cyber-red/15 backdrop-blur-xl text-slate-200 space-y-3 shadow-[0_0_30px_rgba(255,26,83,0.2)]">
+      <div class="flex items-start gap-3">
+        <div class="text-cyber-red text-2xl">⚠️</div>
+        <div class="space-y-1">
+          <h3 class="font-bold font-mono text-white text-sm" id="error-title">BRAND NOT IDENTIFIED</h3>
+          <p class="text-xs text-slate-300" id="error-message">No facility matched this query.</p>
+        </div>
+      </div>
+      <div id="error-suggestions" class="pt-2 border-t border-cyber-red/25 flex flex-wrap gap-2 text-xs">
+        <!-- Suggestions rendered here -->
+      </div>
+    </div>
+
+    <!-- Detailed Result Card (Forensic Dossier) -->
+    <section id="result-card" class="hidden max-w-4xl mx-auto space-y-6 transition-all duration-300">
+      
+      <!-- Main Dossier Container with Glassmorphism & Cyber Depth -->
+      <div class="glass-card rounded-2xl border border-cyber-border shadow-2xl overflow-hidden relative">
+        
+        <!-- Dossier Top Cyber Header Bar -->
+        <div class="bg-cyber-darker/90 px-6 py-4 border-b border-cyber-border flex flex-wrap items-center justify-between gap-3 font-mono text-xs">
+          <div class="flex items-center gap-2.5">
+            <span class="w-2.5 h-2.5 rounded-sm bg-cyber-cyan shadow-[0_0_8px_#00f0ff]"></span>
+            <span class="text-slate-400">FACILITY CODE:</span>
+            <span class="font-bold text-white tracking-wider" id="dossier-facility-code">LOS-LEK-09</span>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <span class="px-2.5 py-1 rounded bg-slate-800/80 border border-cyber-border text-slate-300 text-[11px]" id="dossier-area-badge">
+              LEKKI PHASE 1, LAGOS
+            </span>
+            <span class="px-2.5 py-1 rounded bg-cyber-cyan/15 border border-cyber-cyan/40 text-cyber-cyan font-bold text-[11px] shadow-[0_0_12px_rgba(0,240,255,0.2)]" id="dossier-match-confidence">
+              100% MATCH CONFIDENCE
+            </span>
+          </div>
+        </div>
+
+        <div class="p-6 sm:p-8 space-y-8">
+          
+          <!-- Hero Section: Target Brand & Ghost Index Dynamic Gauge -->
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center border-b border-cyber-border/80 pb-8">
+            
+            <!-- Left: Brand Info & Status Banner -->
+            <div class="md:col-span-7 space-y-3.5">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-mono uppercase px-2.5 py-0.5 rounded border" id="dossier-brand-type-badge">
+                  VIRTUAL STOREFRONT
+                </span>
+                <span class="text-xs font-mono text-slate-400" id="dossier-brand-cuisine">
+                  Gourmet Smashed Burgers & Truffle Fries
+                </span>
+              </div>
+
+              <h2 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight" id="dossier-brand-name">
+                Midnight Burger Lab
+              </h2>
+
+              <!-- Risk Level Banner with glowing borders -->
+              <div class="p-4 rounded-xl border flex items-center gap-3.5 transition-all duration-300" id="dossier-risk-banner">
+                <div class="text-3xl" id="dossier-risk-icon">🚨</div>
+                <div>
+                  <div class="font-mono font-bold text-xs uppercase tracking-wider" id="dossier-risk-level">
+                    CRITICAL GHOST HIVE
+                  </div>
+                  <p class="text-xs text-slate-300 mt-0.5 leading-snug" id="dossier-risk-summary">
+                    7 distinct virtual brands operating inside a single 40m² prep room with shared frying vats.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right: Ghost Index Score Gauge with Count-Up (0-100%) -->
+            <div class="md:col-span-5 flex flex-col items-center justify-center p-6 rounded-2xl bg-cyber-darker/90 border border-cyber-border/90 shadow-inner">
+              <span class="text-[11px] font-mono tracking-widest text-slate-400 uppercase mb-2">GHOST INDEX SCORE</span>
+              
+              <div class="relative w-40 h-40 flex items-center justify-center">
+                <!-- Circular SVG Progress Ring -->
+                <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="40" stroke="#172033" stroke-width="8" fill="transparent"></circle>
+                  <circle 
+                    id="score-circle" 
+                    cx="50" 
+                    cy="50" 
+                    r="40" 
+                    stroke="currentColor" 
+                    stroke-width="8" 
+                    stroke-dasharray="251.2" 
+                    stroke-dashoffset="251.2" 
+                    stroke-linecap="round"
+                    fill="transparent" 
+                    class="text-cyber-red filter drop-shadow-[0_0_8px_currentColor]"
+                  ></circle>
+                </svg>
+
+                <!-- Center Score Number (Animated Count-Up) -->
+                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                  <span class="text-3xl sm:text-4xl font-mono font-extrabold text-white" id="dossier-score-num">0%</span>
+                  <span class="text-[10px] font-mono text-slate-400 uppercase tracking-tighter" id="dossier-score-label">PROBABILITY</span>
+                </div>
+              </div>
+
+              <!-- Risk meter subtitle -->
+              <span class="mt-2.5 text-xs font-mono font-semibold" id="dossier-score-verdict">EXTREME SHARING DETECTED</span>
+            </div>
+
+          </div>
+
+          <!-- Forensic Key Metrics (4-column grid) -->
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5 font-mono text-xs">
+            
+            <div class="bg-cyber-darker/80 p-3.5 rounded-xl border border-cyber-border">
+              <span class="text-[10px] text-slate-400 uppercase block">Co-Located Brands</span>
+              <span class="text-base font-bold text-white mt-1 block" id="metric-brands-count">7 BRANDS</span>
+              <span class="text-[11px] text-cyber-red" id="metric-brands-note">Sharing same room</span>
+            </div>
+
+            <div class="bg-cyber-darker/80 p-3.5 rounded-xl border border-cyber-border">
+              <span class="text-[10px] text-slate-400 uppercase block">Dine-in Seating</span>
+              <span class="text-base font-bold text-white mt-1 block" id="metric-seating">0 SEATS</span>
+              <span class="text-[11px] text-slate-400" id="metric-seating-note">Pickup hatch only</span>
+            </div>
+
+            <div class="bg-cyber-darker/80 p-3.5 rounded-xl border border-cyber-border">
+              <span class="text-[10px] text-slate-400 uppercase block">Inspection Status</span>
+              <span class="text-base font-bold text-white mt-1 block" id="metric-inspection-grade">GRADE C</span>
+              <span class="text-[11px] text-cyber-amber truncate block" id="metric-inspection-desc">Sanitary Notice</span>
+            </div>
+
+            <div class="bg-cyber-darker/80 p-3.5 rounded-xl border border-cyber-border">
+              <span class="text-[10px] text-slate-400 uppercase block">Cross-Contamination</span>
+              <span class="text-base font-bold text-white mt-1 block" id="metric-risk-tag">CRITICAL</span>
+              <span class="text-[11px] text-slate-400" id="metric-risk-desc">Shared fryers & vats</span>
+            </div>
+
+          </div>
+
+          <!-- Interactive 2D Node Graph Canvas (Visual Extraction & Co-Location Mapping) -->
+          <div class="space-y-3 pt-2">
+            <div class="flex items-center justify-between border-b border-cyber-border pb-2.5">
+              <div class="flex items-center gap-2">
+                <span class="text-cyber-cyan text-base">🕸️</span>
+                <div>
+                  <h3 class="text-sm sm:text-base font-bold text-white font-mono flex items-center gap-2">
+                    <span>FACILITY EXTRACTION & CO-LOCATION TOPOLOGY</span>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-cyber-cyan/10 text-cyber-cyan border border-cyber-cyan/30">2D LIVE NODE MAP</span>
+                  </h3>
+                  <p class="text-xs text-slate-400">Interactive physics topology of central physical kitchen facility connecting via energy tentacles to virtual storefronts</p>
+                </div>
+              </div>
+              <div class="hidden sm:flex items-center gap-3 text-[11px] font-mono text-slate-400">
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-cyber-cyan shadow-[0_0_6px_#00f0ff]"></span> Facility Hub</span>
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-cyber-red shadow-[0_0_6px_#ff1a53]"></span> Virtual Brand</span>
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-cyber-green shadow-[0_0_6px_#00ff88]"></span> Authentic</span>
+              </div>
+            </div>
+
+            <!-- Canvas Container -->
+            <div class="relative rounded-2xl overflow-hidden border border-cyber-border/80 bg-cyber-darker/95 shadow-inner">
+              <canvas id="node-graph-canvas" class="w-full h-72 sm:h-80 block cursor-crosshair"></canvas>
+              <div class="absolute bottom-2.5 left-3.5 text-[10px] font-mono text-slate-500 pointer-events-none flex items-center gap-2">
+                <span>[ HOVER NODES TO INSPECT CONNECTIVITY // PULSE ENERGY ACTIVE ]</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Co-Located Brands Grid Section -->
+          <div class="space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-cyber-border pb-3">
+              <div>
+                <h3 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                  <span class="text-cyber-cyan">🏢</span>
+                  <span>Co-Located Brands Cooked in the Same Room</span>
+                  <span class="text-xs font-mono px-2 py-0.5 rounded-full bg-cyber-cyan/10 text-cyber-cyan border border-cyber-cyan/30" id="co-located-badge-count">
+                    7 BRANDS
+                  </span>
+                </h3>
+                <p class="text-xs text-slate-400 mt-0.5">
+                  These delivery storefronts appear separate on apps (Bolt Food, Chowdeck, Glovo), but share the same physical floor, fryers, and extraction vents.
+                </p>
+              </div>
+            </div>
+
+            <!-- Co-Located Cards Grid -->
+            <div id="co-located-grid" class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+              <!-- Rendered via JavaScript -->
+            </div>
+          </div>
+
+          <!-- Physical Facility Details Dossier -->
+          <div class="p-5 sm:p-6 rounded-2xl bg-cyber-darker/90 border border-cyber-border space-y-4">
+            <div class="flex items-center justify-between border-b border-cyber-border/70 pb-3">
+              <h3 class="font-mono text-sm font-bold text-white flex items-center gap-2">
+                <span class="text-cyber-green">📍</span>
+                <span>PHYSICAL FACILITY DOSSIER</span>
+              </h3>
+              <span class="text-[11px] font-mono text-slate-400" id="facility-last-inspected">
+                INSPECTED: 2024-10-02
+              </span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+              <div class="space-y-1">
+                <span class="text-[10px] font-mono uppercase text-slate-400">Physical Facility Name</span>
+                <p class="font-semibold text-white text-sm" id="facility-name">CloudBite Logistics Hub - Unit LK-09</p>
+                <p class="text-slate-400 font-mono text-[11px]" id="facility-type">Multi-Bay Industrial Dark Kitchen Complex</p>
+              </div>
+
+              <div class="space-y-1">
+                <span class="text-[10px] font-mono uppercase text-slate-400">Physical Street Address</span>
+                <p class="font-semibold text-cyber-cyan text-sm flex items-center gap-1.5" id="facility-address">
+                  Plot 14 Admiralty Way, Lekki Phase 1, Lagos
+                </p>
+                <p class="text-slate-400 font-mono text-[11px]" id="facility-permits">Permit: Commercial Commissary #LSSC-2024-8841</p>
+              </div>
+            </div>
+
+            <!-- Regulatory & Shared Equipment -->
+            <div class="pt-3 border-t border-cyber-border/50 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-mono">
+              <div>
+                <span class="text-slate-400 block text-[10px] uppercase">Inspection Notice / Regulatory Status:</span>
+                <p class="text-slate-200 mt-0.5 text-[11px]" id="facility-inspection-full">
+                  Sanitary Notice Issued - Overcrowded Commercial Extraction (LSSC #LK-9021)
+                </p>
+              </div>
+              <div>
+                <span class="text-slate-400 block text-[10px] uppercase">Shared Commercial Equipment:</span>
+                <p class="text-slate-200 mt-0.5 text-[11px]" id="facility-shared-equipment">
+                  Frymaster Commercial Vat #1, Garland 6-Burner Flat Top, Single Walk-in Chiller
+                </p>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- Default State: Lagos Hotspots Grid & Surveillance Explorer (Shown when no search is active) -->
+    <section id="default-dashboard" class="max-w-5xl mx-auto space-y-6">
+      
+      <div class="flex items-center justify-between border-b border-cyber-border pb-3">
+        <div>
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span>🗺️</span>
+            <span>Lagos Surveillance Hotspots</span>
+          </h2>
+          <p class="text-xs text-slate-400">Select any monitored corridor in Lagos to inspect active delivery kitchens</p>
+        </div>
+        <span class="text-xs font-mono text-cyber-cyan bg-cyber-cyan/10 border border-cyber-cyan/30 px-2.5 py-0.5 rounded shadow-[0_0_10px_rgba(0,240,255,0.2)]">
+          LAGOS URBAN MESH
+        </span>
+      </div>
+
+      <!-- Hotspots Grid with 3D Tilt Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="hotspots-grid">
+        <!-- Rendered via JavaScript -->
+      </div>
+
+      <!-- Educational Forensic Breakdown: How Ghost Kitchens Operate in Lagos -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
+        
+        <div class="glass-card p-5 rounded-2xl border border-cyber-border space-y-2 tilt-card">
+          <div class="w-8 h-8 rounded-lg bg-cyber-red/15 border border-cyber-red/35 flex items-center justify-center text-cyber-red font-mono font-bold text-xs shadow-[0_0_10px_rgba(255,26,83,0.3)]">
+            01
+          </div>
+          <h3 class="font-bold text-white text-sm">Storefront Illusion</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            One physical room registers 6+ distinct brand names across Bolt Food, Chowdeck, and Glovo, giving customers the false impression of ordering from separate specialty eateries.
+          </p>
+        </div>
+
+        <div class="glass-card p-5 rounded-2xl border border-cyber-border space-y-2 tilt-card">
+          <div class="w-8 h-8 rounded-lg bg-cyber-amber/15 border border-cyber-amber/35 flex items-center justify-center text-cyber-amber font-mono font-bold text-xs shadow-[0_0_10px_rgba(245,158,11,0.3)]">
+            02
+          </div>
+          <h3 class="font-bold text-white text-sm">Shared Fryers & Allergens</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Sushi, Nashville hot chicken, and local soups frequently share identical prep counters, deep fryers, and extraction hoods, multiplying cross-contamination hazards.
+          </p>
+        </div>
+
+        <div class="glass-card p-5 rounded-2xl border border-cyber-border space-y-2 tilt-card">
+          <div class="w-8 h-8 rounded-lg bg-cyber-green/15 border border-cyber-green/35 flex items-center justify-center text-cyber-green font-mono font-bold text-xs shadow-[0_0_10px_rgba(0,255,136,0.3)]">
+            03
+          </div>
+          <h3 class="font-bold text-white text-sm">Authentic Transparency</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Authentic dining venues maintain open dining rooms, dedicated culinary staff, and registered health commission certifications visible to walk-in patrons.
+          </p>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-cyber-border/70 bg-cyber-darker/90 mt-12 py-6 text-xs font-mono text-slate-500 z-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-cyber-cyan shadow-[0_0_6px_#00f0ff]"></span>
+        <span class="text-slate-400">GHOST KITCHEN RADAR // LAGOS STATE DEPLOYMENT</span>
+      </div>
+      <div>
+        <span>NAFDAC &amp; LSSC Cross-Reference Protocol v3.8</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="/app.js"></script>
+</body>
+</html>
