@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ghost Kitchen Radar // Lagos Surveillance Node</title>
+  <!-- Leaflet CSS and JS CDN -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
   
   <!-- Three.js CDN for 3D Background Visuals -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -289,6 +293,18 @@
       <div id="error-suggestions" class="pt-2 border-t border-cyber-red/25 flex flex-wrap gap-2 text-xs">
         <!-- Suggestions rendered here -->
       </div>
+    </div>
+
+    <!-- Interactive Leaflet.js Forensic Corridor Map -->
+    <div class="max-w-4xl mx-auto space-y-2">
+      <div class="flex items-center justify-between text-xs font-mono text-slate-400 px-1">
+        <span class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-cyber-green animate-ping"></span>
+          <span class="text-white font-bold tracking-wider">LAGOS FORENSIC CORRIDOR // GEO-RADAR BLIP MAP</span>
+        </span>
+        <span class="text-[11px] text-slate-400 hidden sm:inline">Click any blip to inspect facility dossier</span>
+      </div>
+      <div id="forensic-map" class="w-full h-80 rounded-xl border border-emerald-500/30 overflow-hidden my-6"></div>
     </div>
 
     <!-- Detailed Result Card (Forensic Dossier) -->

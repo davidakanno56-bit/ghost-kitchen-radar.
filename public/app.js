@@ -816,6 +816,9 @@ document.addEventListener('DOMContentLoaded', () => {
     clearBtn.classList.add('hidden');
     hideResultCard();
     searchInput.focus();
+    if (leafletMap) {
+      leafletMap.flyTo([6.5244, 3.3792], 12, { duration: 1.0 });
+    }
   });
 
   // Global Keyboard Shortcuts
@@ -831,6 +834,191 @@ document.addEventListener('DOMContentLoaded', () => {
       hideResultCard();
     }
   });
+
+  // ==========================================
+  // 7B. LEAFLET FORENSIC CORRIDOR MAP ENGINE
+  // ==========================================
+  let leafletMap = null;
+  const mapMarkers = new Map();
+  const brandToFacilityMap = new Map();
+
+  function initForensicMap() {
+    const mapEl = document.getElementById('forensic-map');
+    if (!mapEl || typeof L === 'undefined') return;
+
+    try {
+      leafletMap = L.map('forensic-map', {
+        center: [6.5244, 3.3792],
+        zoom: 12,
+        zoomControl: true,
+        attributionControl: false
+      });
+
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        maxZoom: 19,
+        subdomains: 'abcd',
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+      }).addTo(leafletMap);
+
+      setTimeout(() => {
+        if (leafletMap) leafletMap.invalidateSize();
+      }, 350);
+
+      window.addEventListener('resize', () => {
+        if (leafletMap) leafletMap.invalidateSize();
+      });
+    } catch (err) {
+      console.warn('Leaflet map initialization warning:', err);
+    }
+  }
+
+  function plotFacilityMarkers(facilities) {
+    if (!leafletMap || !Array.isArray(facilities)) return;
+
+    // Clear previous markers
+    mapMarkers.forEach(item => {
+      if (item.marker) item.marker.remove();
+    });
+    mapMarkers.clear();
+    brandToFacilityMap.clear();
+
+    facilities.forEach(fac => {
+      if (!fac.coordinates || typeof fac.coordinates.lat !== 'number' || typeof fac.coordinates.lng !== 'number') {
+        return;
+      }
+
+      const score = fac.ghostIndexScore || 0;
+      let blipClass = 'cyber-blip-green';
+      let statusColor = '#00ff88';
+      let statusText = 'AUTHENTIC RESTAURANT';
+
+      if (score >= 75) {
+        blipClass = 'cyber-blip-red';
+        statusColor = '#ff1a53';
+        statusText = 'CRITICAL GHOST HIVE';
+      } else if (score >= 40) {
+        blipClass = 'cyber-blip-amber';
+        statusColor = '#f59e0b';
+        statusText = 'MODERATE CO-LOCATION';
+      }
+
+      const icon = L.divIcon({
+        className: 'cyber-leaflet-div-icon',
+        html: `<div class="cyber-blip ${blipClass}" title="${escapeHtml(fac.facilityName)}"><div class="cyber-blip-pulse"></div><div class="cyber-blip-dot"></div></div>`,
+        iconSize: [22, 22],
+        iconAnchor: [11, 11]
+      });
+
+      const marker = L.marker([fac.coordinates.lat, fac.coordinates.lng], { icon }).addTo(leafletMap);
+
+      const brandCount = fac.brands ? fac.brands.length : 1;
+      const brandPreview = fac.brands ? fac.brands.slice(0, 3).map(b => b.name).join(', ') + (fac.brands.length > 3 ? '...' : '') : '';
+
+      const popupHtml = `
+        <div class="font-mono text-xs space-y-1.5 min-w-[220px]">
+          <div class="flex items-center justify-between gap-2 border-b border-cyber-border pb-1">
+            <span class="font-bold text-white text-xs">${escapeHtml(fac.facilityName)}</span>
+            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded ${score >= 75 ? 'bg-red-500/20 text-red-400 border border-red-500/40' : score >= 40 ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'}">${score}% GHOST</span>
+          </div>
+          <div class="text-[11px] text-slate-300">${escapeHtml(fac.address)}</div>
+          <div class="text-[10px] text-slate-400">${brandCount} ${brandCount > 1 ? 'co-located brands' : 'brand'}: <span class="text-slate-200">${escapeHtml(brandPreview)}</span></div>
+          <div class="pt-1 text-cyber-cyan text-[11px] font-bold flex items-center justify-between">
+            <span>INSPECT FORENSIC DOSSIER</span>
+            <span>&rarr;</span>
+          </div>
+        </div>
+      `;
+
+      marker.bindPopup(popupHtml, { className: 'cyber-leaflet-popup', closeButton: true });
+
+      const tooltipContent = `<div style="font-family:'JetBrains Mono',monospace;"><b>${escapeHtml(fac.facilityName)}</b><br><span style="color:${statusColor};">${score}% Ghost Index (${statusText})</span> &bull; ${escapeHtml(fac.area)}</div>`;
+      marker.bindTooltip(tooltipContent, {
+        className: 'cyber-leaflet-tooltip',
+        direction: 'top',
+        offset: [0, -12]
+      });
+
+      marker.on('click', () => {
+        if (fac.coordinates) {
+          leafletMap.flyTo([fac.coordinates.lat, fac.coordinates.lng], 14, { duration: 1.2 });
+        }
+        const brandToSearch = fac.brands && fac.brands.length > 0 ? fac.brands[0].name : fac.facilityName;
+        searchInput.value = brandToSearch;
+        clearBtn.classList.remove('hidden');
+        audioFX.playRadarPing(score >= 50 ? 920 : 680);
+        triggerRadarShockwave(score >= 50 ? 'rgba(255, 26, 83,' : 'rgba(0, 255, 136,');
+        triggerThreePulse(score >= 50 ? 0xff1a53 : 0x00ff88);
+        marker.openTooltip();
+        runInspection(brandToSearch, false);
+      });
+
+      mapMarkers.set(fac.id, { marker, facility: fac });
+
+      if (fac.brands) {
+        fac.brands.forEach(b => {
+          brandToFacilityMap.set(b.name.toLowerCase().trim(), fac.id);
+          if (b.aliases) {
+            b.aliases.forEach(a => brandToFacilityMap.set(a.toLowerCase().trim(), fac.id));
+          }
+        });
+      }
+      brandToFacilityMap.set(fac.facilityName.toLowerCase().trim(), fac.id);
+    });
+
+    if (leafletMap) {
+      setTimeout(() => leafletMap.invalidateSize(), 250);
+    }
+  }
+
+  function focusMapOnFacility(facOrCoord, openTooltip = true) {
+    if (!leafletMap || !facOrCoord) return;
+    const coords = facOrCoord.coordinates || facOrCoord;
+    if (!coords || typeof coords.lat !== 'number' || typeof coords.lng !== 'number') return;
+
+    leafletMap.flyTo([coords.lat, coords.lng], 14, { duration: 1.2 });
+
+    const facId = facOrCoord.id;
+    if (facId && mapMarkers.has(facId)) {
+      const item = mapMarkers.get(facId);
+      if (item && item.marker) {
+        if (openTooltip) {
+          setTimeout(() => {
+            if (item.marker) item.marker.openTooltip();
+          }, 350);
+        }
+        const el = item.marker.getElement();
+        if (el) {
+          const blip = el.querySelector('.cyber-blip');
+          if (blip) {
+            blip.classList.add('cyber-blip-active');
+            setTimeout(() => blip.classList.remove('cyber-blip-active'), 3500);
+          }
+        }
+      }
+    }
+  }
+
+  function focusMapOnBrandName(name) {
+    if (!name || !leafletMap) return;
+    const lower = name.toLowerCase().trim();
+    let facId = brandToFacilityMap.get(lower);
+
+    if (!facId) {
+      for (const [id, item] of mapMarkers.entries()) {
+        const fac = item.facility;
+        if (fac.facilityName.toLowerCase().includes(lower) ||
+            (fac.brands && fac.brands.some(b => b.name.toLowerCase().includes(lower) || (b.aliases && b.aliases.some(a => a.toLowerCase().includes(lower)))))) {
+          facId = id;
+          break;
+        }
+      }
+    }
+
+    if (facId && mapMarkers.has(facId)) {
+      const item = mapMarkers.get(facId);
+      focusMapOnFacility(item.facility, true);
+    }
+  }
 
   // ==========================================
   // 8. DATA INGESTION: STATS & QUICK-LIST
@@ -897,9 +1085,9 @@ document.addEventListener('DOMContentLoaded', () => {
         audioFX.playRadarPing(isGhost ? 960 : 720);
         triggerRadarShockwave(isGhost ? 'rgba(255, 26, 83,' : 'rgba(0, 255, 136,');
         triggerThreePulse(isGhost ? 0xff1a53 : 0x00ff88);
-        runInspection(pill.name);
+        focusMapOnBrandName(pill.name);
+        runInspection(pill.name, true);
       });
-
       quickPillsContainer.appendChild(btn);
     });
   }
@@ -910,6 +1098,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!res.ok) return;
       const facilities = await res.json();
       renderHotspots(facilities);
+      plotFacilityMarkers(facilities);
     } catch (err) {
       console.warn('Hotspots offline:', err);
     }
@@ -953,9 +1142,9 @@ document.addEventListener('DOMContentLoaded', () => {
         audioFX.playRadarPing(isGhost ? 920 : 680);
         triggerRadarShockwave(isGhost ? 'rgba(255, 26, 83,' : 'rgba(0, 255, 136,');
         triggerThreePulse(isGhost ? 0xff1a53 : 0x00ff88);
-        runInspection(brandToSearch);
+        focusMapOnFacility(fac, true);
+        runInspection(brandToSearch, false);
       });
-
       attachTiltEffects(card);
       hotspotsGrid.appendChild(card);
     });
@@ -974,14 +1163,14 @@ document.addEventListener('DOMContentLoaded', () => {
     audioFX.playRadarPing(880);
     triggerRadarShockwave('rgba(0, 240, 255,');
     triggerThreePulse(0x00f0ff);
-    runInspection(query);
+    focusMapOnBrandName(query);
+    runInspection(query, true);
   });
 
-  async function runInspection(brandName) {
+  async function runInspection(brandName, shouldFly = true) {
     hideError();
     hideResultCard();
     showLoader(brandName);
-
     try {
       // Step-by-step forensic terminal animation
       await animateScanProgress();
@@ -1002,6 +1191,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Render Inspection Result
       renderDossier(data);
+
+      // Auto-focus marker on map with open cyber tooltip
+      if (shouldFly && data.facility) {
+        focusMapOnFacility(data.facility, true);
+      }
 
       const isHighRisk = data.ghostIndexScore >= 50;
       audioFX.playRiskAlert(isHighRisk);
@@ -1172,6 +1366,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Show result card and scroll into view smoothly
     resultCard.classList.remove('hidden');
+    defaultDashboard.classList.add('hidden');
     resultCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
@@ -1232,7 +1427,8 @@ document.addEventListener('DOMContentLoaded', () => {
       .replace(/'/g, '&#039;');
   }
 
-  // Initial Data Ingestion
+  // Initial Data Ingestion & Map Setup
+  initForensicMap();
   loadTelemetry();
   loadQuickList();
   loadHotspots();

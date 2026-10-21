@@ -34,6 +34,33 @@ function getAllBrandEntries() {
 app.get('/api/quick-list', (req, res) => {
   const quickList = [
     {
+      name: "Mega Chicken Ikeja",
+      area: "Ikeja",
+      score: 2,
+      tag: "Authentic Flagship",
+      type: "authentic",
+      badge: "✅ 250-Seat Flagship",
+      cuisine: "Nigerian Jollof & Pastries"
+    },
+    {
+      name: "Midnight Noodle Syndicate",
+      area: "Yaba",
+      score: 98,
+      tag: "Ghost Matrix (8 Brands)",
+      type: "ghost",
+      badge: "🚨 8 Co-Located Brands",
+      cuisine: "Spicy Ramen & Street Woks"
+    },
+    {
+      name: "The Place Restaurant VI",
+      area: "Victoria Island",
+      score: 4,
+      tag: "Authentic Lounge",
+      type: "authentic",
+      badge: "✅ 180-Seat Flagship",
+      cuisine: "Asun Jollof & Grills"
+    },
+    {
       name: "Midnight Burger Lab",
       area: "Lekki Phase 1",
       score: 96,
@@ -41,6 +68,33 @@ app.get('/api/quick-list', (req, res) => {
       type: "ghost",
       badge: "🚨 7 Co-Located Brands",
       cuisine: "Gourmet Smashed Burgers"
+    },
+    {
+      name: "Bukka Hut Lekki",
+      area: "Lekki Phase 1",
+      score: 5,
+      tag: "Authentic Traditional",
+      type: "authentic",
+      badge: "✅ 110-Seat Traditional",
+      cuisine: "Amala Dudu & Native Soups"
+    },
+    {
+      name: "Ogba Smoked Ribs & BBQ",
+      area: "Ikeja",
+      score: 95,
+      tag: "Ghost Hive (7 Brands)",
+      type: "ghost",
+      badge: "🚨 7 Shared Kitchen Brands",
+      cuisine: "Slow Smoked Beef Ribs"
+    },
+    {
+      name: "Chicken Republic Lekki",
+      area: "Lekki Phase 1",
+      score: 12,
+      tag: "Authentic Franchise",
+      type: "authentic",
+      badge: "✅ 70-Seat Drive-Thru",
+      cuisine: "Spicy Fried Chicken"
     },
     {
       name: "Terra Kulture Restaurant",
@@ -52,6 +106,15 @@ app.get('/api/quick-list', (req, res) => {
       cuisine: "Contemporary Nigerian Dining"
     },
     {
+      name: "Domino's Pizza VI",
+      area: "Victoria Island",
+      score: 9,
+      tag: "Authentic Franchise",
+      type: "authentic",
+      badge: "✅ 90-Seat Dual Venue",
+      cuisine: "Hand-Tossed Pizzas"
+    },
+    {
       name: "The Wok Legend",
       area: "Victoria Island",
       score: 89,
@@ -61,49 +124,49 @@ app.get('/api/quick-list', (req, res) => {
       cuisine: "Sichuan & Cantonese Stir-Fry"
     },
     {
-      name: "The Yellow Chilli",
+      name: "Cactus Restaurant",
+      area: "Victoria Island",
+      score: 2,
+      tag: "Authentic Waterfront",
+      type: "authentic",
+      badge: "✅ 175-Seat Verified",
+      cuisine: "Mediterranean & Patisserie"
+    },
+    {
+      name: "Ghost Taco Syndicate",
+      area: "Gbagada",
+      score: 98,
+      tag: "Ghost Hive (7 Brands)",
+      type: "ghost",
+      badge: "🚨 7 Shared Kitchen Brands",
+      cuisine: "Birria Beef Tacos"
+    },
+    {
+      name: "Tastee Fried Chicken",
       area: "Ikeja GRA",
       score: 5,
-      tag: "Authentic Dine-In",
+      tag: "Authentic Fast Food",
       type: "authentic",
-      badge: "✅ 85-Seat Standalone",
-      cuisine: "Pan-African Fine Dining"
+      badge: "✅ 110-Seat Dining Hall",
+      cuisine: "Original Recipe Fried Chicken"
     },
     {
-      name: "King Shawarma & Grills",
-      area: "Ikeja GRA",
-      score: 84,
-      tag: "Basement Hub (6 Brands)",
+      name: "Festac Wing Society",
+      area: "Festac Town",
+      score: 99,
+      tag: "Ghost Cell (8 Brands)",
       type: "ghost",
-      badge: "🚨 6 Shared Kitchen Brands",
-      cuisine: "Lebanese Grills & Wraps"
+      badge: "🚨 8 Virtual Storefronts",
+      cuisine: "Ghost Pepper Wings & Cajun"
     },
     {
-      name: "Suya Express 24/7",
-      area: "Surulere",
-      score: 79,
-      tag: "Garage Annex (4 Brands)",
-      type: "ghost",
-      badge: "🚨 4 Unzoned Brands",
-      cuisine: "Night Charcoal Grills & Suya"
-    },
-    {
-      name: "Ocean Basket Lekki",
-      area: "Lekki Phase 1",
-      score: 7,
-      tag: "Authentic Seafood",
-      type: "authentic",
-      badge: "✅ 150-Seat Waterfront",
-      cuisine: "Mediterranean Seafood"
-    },
-    {
-      name: "Danube Bistro Ikoyi",
+      name: "Bourdillon Truffle Burger",
       area: "Ikoyi",
-      score: 3,
-      tag: "Authentic Patisserie",
-      type: "authentic",
-      badge: "✅ 45-Seat Garden Cafe",
-      cuisine: "Artisan Bakery & Cafe"
+      score: 94,
+      tag: "Dark Pod (5 Brands)",
+      type: "ghost",
+      badge: "🚨 5 Virtual Brands",
+      cuisine: "Wagyu Smashed Beef"
     }
   ];
 
@@ -151,6 +214,18 @@ app.get('/api/facilities', (req, res) => {
 });
 
 /**
+ * GET /api/facilities/:id
+ * Returns single facility by id or code
+ */
+app.get('/api/facilities/:id', (req, res) => {
+  const facility = facilities.find(f => f.id === req.params.id || f.facilityCode === req.params.id);
+  if (!facility) {
+    return res.status(404).json({ success: false, error: 'Facility not found' });
+  }
+  res.json(facility);
+});
+
+/**
  * GET /api/inspect?q=...
  * Fuzzy matches brand names against the Lagos registry using string-similarity
  * Returns facility details, ghost index score, inspection status, co-located brands
@@ -170,44 +245,54 @@ app.get('/api/inspect', (req, res) => {
   const entries = getAllBrandEntries();
 
   // Score each entry using string-similarity and keyword heuristics
+  // Score each entry using string-similarity, aliases, and keyword heuristics
   const scored = entries.map(item => {
     const brandName = item.brand.name;
     const brandLower = brandName.toLowerCase();
+    const aliases = (item.brand.aliases || []).map(a => a.toLowerCase());
+    const candidateNames = [brandLower, ...aliases];
 
-    // Baseline string similarity (Dice's coefficient)
-    const diceScore = stringSimilarity.compareTwoStrings(queryLower, brandLower);
+    let maxEntryScore = 0;
+    let bestMethod = 'fuzzy';
 
-    // Exact match
-    if (queryLower === brandLower) {
-      return { ...item, score: 1.0, matchMethod: 'exact' };
-    }
+    for (const cand of candidateNames) {
+      if (queryLower === cand) {
+        maxEntryScore = 1.0;
+        bestMethod = 'exact';
+        break;
+      }
 
-    // Direct substring match with length weight
-    let substringScore = 0;
-    if (brandLower.includes(queryLower) || queryLower.includes(brandLower)) {
-      const minLen = Math.min(queryLower.length, brandLower.length);
-      const maxLen = Math.max(queryLower.length, brandLower.length);
-      substringScore = 0.65 + 0.33 * (minLen / maxLen);
-    }
+      const dice = stringSimilarity.compareTwoStrings(queryLower, cand);
+      let sub = 0;
+      if (cand.includes(queryLower) || queryLower.includes(cand)) {
+        const minLen = Math.min(queryLower.length, cand.length);
+        const maxLen = Math.max(queryLower.length, cand.length);
+        sub = 0.70 + 0.28 * (minLen / maxLen);
+      }
 
-    // Token overlap match
-    const qTokens = queryLower.split(/[\s,.-]+/).filter(t => t.length > 2);
-    const bTokens = brandLower.split(/[\s,.-]+/).filter(t => t.length > 2);
-    let tokenScore = 0;
-    if (qTokens.length > 0 && bTokens.length > 0) {
-      const matchedTokens = qTokens.filter(qt =>
-        bTokens.some(bt => bt.includes(qt) || qt.includes(bt) || stringSimilarity.compareTwoStrings(qt, bt) > 0.7)
-      );
-      if (matchedTokens.length > 0) {
-        tokenScore = 0.45 + 0.45 * (matchedTokens.length / Math.max(qTokens.length, bTokens.length));
+      const qTokens = queryLower.split(/[\s,.-]+/).filter(t => t.length > 2);
+      const cTokens = cand.split(/[\s,.-]+/).filter(t => t.length > 2);
+      let tok = 0;
+      if (qTokens.length > 0 && cTokens.length > 0) {
+        const matchedTokens = qTokens.filter(qt =>
+          cTokens.some(ct => ct.includes(qt) || qt.includes(ct) || stringSimilarity.compareTwoStrings(qt, ct) > 0.7)
+        );
+        if (matchedTokens.length > 0) {
+          tok = 0.50 + 0.45 * (matchedTokens.length / Math.max(qTokens.length, cTokens.length));
+        }
+      }
+
+      const candFinal = Math.max(dice, sub, tok);
+      if (candFinal > maxEntryScore) {
+        maxEntryScore = candFinal;
+        bestMethod = candFinal === sub ? 'substring' : candFinal === tok ? 'token' : 'fuzzy';
       }
     }
 
-    const finalScore = Math.max(diceScore, substringScore, tokenScore);
     return {
       ...item,
-      score: finalScore,
-      matchMethod: finalScore === substringScore ? 'substring' : finalScore === tokenScore ? 'token' : 'fuzzy'
+      score: maxEntryScore,
+      matchMethod: bestMethod
     };
   });
 
@@ -217,7 +302,7 @@ app.get('/api/inspect', (req, res) => {
   const bestMatch = scored[0];
 
   // If match confidence is too low, return not found with nearest suggestions
-  if (!bestMatch || bestMatch.score < 0.25) {
+  if (!bestMatch || bestMatch.score < 0.30) {
     const suggestions = scored.slice(0, 4).map(s => ({
       name: s.brand.name,
       area: s.facility.area,
@@ -240,12 +325,15 @@ app.get('/api/inspect', (req, res) => {
     name: b.name,
     cuisine: b.cuisine,
     virtual: b.virtual,
+    isVirtual: b.isVirtual !== undefined ? b.isVirtual : b.virtual,
     priceTier: b.priceTier,
     platforms: b.platforms,
     platformRating: b.platformRating,
-    prepStation: b.prepStation,
+    prepStation: b.prepStation || b.prepBay,
+    prepBay: b.prepBay || b.prepStation,
     packagingTag: b.packagingTag,
     claimedAddress: b.claimedAddress,
+    aliases: b.aliases || [],
     isTargetSearched: b.name.toLowerCase() === brand.name.toLowerCase()
   }));
 
@@ -265,12 +353,15 @@ app.get('/api/inspect', (req, res) => {
       name: brand.name,
       cuisine: brand.cuisine,
       virtual: brand.virtual,
+      isVirtual: brand.isVirtual !== undefined ? brand.isVirtual : brand.virtual,
       priceTier: brand.priceTier,
       platforms: brand.platforms,
       platformRating: brand.platformRating,
-      prepStation: brand.prepStation,
+      prepStation: brand.prepStation || brand.prepBay,
+      prepBay: brand.prepBay || brand.prepStation,
       packagingTag: brand.packagingTag,
-      claimedAddress: brand.claimedAddress
+      claimedAddress: brand.claimedAddress,
+      aliases: brand.aliases || []
     },
     ghostIndexScore: facility.ghostIndexScore,
     riskLevel: facility.riskLevel,
@@ -282,6 +373,8 @@ app.get('/api/inspect', (req, res) => {
       id: facility.id,
       code: facility.facilityCode,
       name: facility.facilityName,
+      operator: facility.operator || 'Independent Commercial Kitchen',
+      registeredBays: facility.registeredBays || [],
       address: facility.address,
       area: facility.area,
       city: facility.city,
