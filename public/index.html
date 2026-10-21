@@ -106,11 +106,11 @@
         <div>
           <div class="flex items-center gap-2">
             <span class="font-semibold tracking-tight text-white text-sm sm:text-base">Ghost Kitchen Radar</span>
-            <span class="hidden sm:inline-block text-[10px] uppercase font-mono px-2 py-0.5 rounded-full bg-brand-500/10 text-brand-400 border border-brand-500/20 font-medium">LOS-SURVEILLANCE</span>
+            <span class="hidden sm:inline-block text-[10px] uppercase font-mono px-2 py-0.5 rounded-full bg-brand-500/10 text-brand-400 border border-brand-500/20 font-medium">NIGERIA-SURVEILLANCE</span>
           </div>
           <p class="text-[11px] text-slate-400 tracking-tight flex items-center gap-1.5 font-mono">
             <span class="w-1.5 h-1.5 rounded-full bg-brand-400 animate-pulse"></span>
-            LAGOS FOOD INFRASTRUCTURE // FORENSIC RADAR
+            NIGERIA FOOD INFRASTRUCTURE // FORENSIC RADAR
           </p>
         </div>
       </div>
@@ -142,7 +142,7 @@
         <!-- Mapped Hubs Counter -->
         <div class="hidden sm:flex items-center gap-2 bg-slate-900/80 border border-white/10 px-2.5 py-1.5 rounded-lg text-[11px]">
           <span class="text-slate-400">HUBS:</span>
-          <span class="text-brand-400 font-semibold" id="header-hubs-count">39 FACILITIES</span>
+          <span class="text-brand-400 font-semibold" id="header-hubs-count">57 FACILITIES</span>
         </div>
 
         <!-- Live Clock -->
@@ -170,7 +170,7 @@
       <!-- Classification Tag (Apple style pill) -->
       <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-white/10 bg-white/[0.03] text-slate-300 text-xs font-medium tracking-wide backdrop-blur-xl shadow-sm">
         <span class="w-1.5 h-1.5 rounded-full bg-brand-400 animate-pulse shadow-[0_0_8px_#6366F1]"></span>
-        <span>Commercial Food Delivery Intelligence &bull; Lagos Surveillance Node</span>
+        <span>Commercial Food Delivery Intelligence &bull; Nigeria Surveillance Mesh</span>
       </div>
 
       <!-- Hero Headline (Linear style typography) -->
@@ -179,7 +179,7 @@
       </h1>
 
       <p class="text-sm sm:text-base text-slate-400 max-w-2xl mx-auto leading-relaxed">
-        Cross-referencing food delivery apps against verified commercial extraction hoods, co-located kitchen bays, and dark commissary pods across Lekki, Victoria Island, Ikeja, and Surulere.
+        Cross-referencing food delivery apps against verified commercial extraction hoods, co-located kitchen bays, and dark commissary pods across Calabar, Lagos, Abuja FCT, Port Harcourt, and Ibadan.
       </p>
 
       <!-- Telemetry Highlights Bar (Clean Frosted Glass Cards) -->
@@ -274,13 +274,31 @@
 
     </section>
 
+    <!-- Regional Metro Switcher Tab Bar -->
+    <section class="max-w-4xl mx-auto space-y-2">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-3 p-2.5 rounded-2xl glass-card border border-white/10 shadow-xl">
+        <div class="flex items-center gap-2 px-2.5 text-xs font-mono text-slate-300">
+          <span class="w-2 h-2 rounded-full bg-brand-400 animate-pulse shadow-[0_0_8px_#6366F1]"></span>
+          <span class="font-bold text-white tracking-wider text-[11px] uppercase">METRO CORRIDOR:</span>
+        </div>
+        <div class="flex flex-wrap items-center gap-1.5 w-full sm:w-auto justify-start sm:justify-end" id="metro-switcher-tabs" role="tablist">
+          <button type="button" data-city="all" class="metro-tab active px-3.5 py-1.5 rounded-xl text-xs font-mono transition-all duration-200 border border-brand-500/50 bg-brand-500/20 text-white font-semibold shadow-[0_0_12px_rgba(99,102,241,0.35)]">All Nigeria</button>
+          <button type="button" data-city="calabar" class="metro-tab px-3.5 py-1.5 rounded-xl text-xs font-mono transition-all duration-200 border border-white/5 bg-slate-900/60 text-slate-400 hover:text-white hover:border-white/20">Calabar</button>
+          <button type="button" data-city="lagos" class="metro-tab px-3.5 py-1.5 rounded-xl text-xs font-mono transition-all duration-200 border border-white/5 bg-slate-900/60 text-slate-400 hover:text-white hover:border-white/20">Lagos</button>
+          <button type="button" data-city="abuja" class="metro-tab px-3.5 py-1.5 rounded-xl text-xs font-mono transition-all duration-200 border border-white/5 bg-slate-900/60 text-slate-400 hover:text-white hover:border-white/20">Abuja FCT</button>
+          <button type="button" data-city="portharcourt" class="metro-tab px-3.5 py-1.5 rounded-xl text-xs font-mono transition-all duration-200 border border-white/5 bg-slate-900/60 text-slate-400 hover:text-white hover:border-white/20">Port Harcourt</button>
+          <button type="button" data-city="ibadan" class="metro-tab px-3.5 py-1.5 rounded-xl text-xs font-mono transition-all duration-200 border border-white/5 bg-slate-900/60 text-slate-400 hover:text-white hover:border-white/20">Ibadan</button>
+        </div>
+      </div>
+    </section>
+
     <!-- Interactive Leaflet.js Forensic Corridor Map (Clean Tech Product Container) -->
     <section class="max-w-4xl mx-auto">
       <div class="glass-card rounded-2xl border border-white/10 overflow-hidden shadow-2xl p-4 sm:p-5 space-y-3">
         <div class="flex items-center justify-between text-xs font-mono text-slate-400 pb-1 border-b border-white/[0.06]">
           <div class="flex items-center gap-2">
             <span class="w-2 h-2 rounded-full bg-cyber-green shadow-[0_0_8px_#10B981]"></span>
-            <span class="text-white font-semibold tracking-wide font-sans text-sm">Lagos Forensic Corridor</span>
+            <span class="text-white font-semibold tracking-wide font-sans text-sm" id="map-corridor-title">Nationwide Forensic Radar</span>
             <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-brand-500/10 text-brand-400 border border-brand-500/20">GEO-SURVEILLANCE</span>
           </div>
           <div class="flex items-center gap-3 text-[11px] font-sans text-slate-400 hidden sm:flex">
@@ -561,12 +579,12 @@
         <div>
           <h2 class="text-lg font-bold text-white flex items-center gap-2">
             <span>🗺️</span>
-            <span>Lagos Surveillance Hotspots</span>
+            <span id="hotspots-section-title">Nationwide Surveillance Hotspots</span>
           </h2>
-          <p class="text-xs text-slate-400">Select any monitored corridor in Lagos to inspect active delivery kitchens</p>
+          <p class="text-xs text-slate-400" id="hotspots-section-desc">Select any monitored regional corridor to inspect active delivery kitchens</p>
         </div>
-        <span class="text-xs font-mono text-brand-400 bg-brand-500/10 border border-brand-500/20 px-2.5 py-0.5 rounded-full">
-          LAGOS URBAN MESH
+        <span class="text-xs font-mono text-brand-400 bg-brand-500/10 border border-brand-500/20 px-2.5 py-0.5 rounded-full" id="hotspots-mesh-badge">
+          NIGERIA URBAN MESH
         </span>
       </div>
 

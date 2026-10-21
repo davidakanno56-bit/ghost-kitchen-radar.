@@ -296,3 +296,22 @@ body {
   border-radius: 8px !important;
   padding: 6px 10px !important;
 }
+
+/* ==========================================================================
+   Regional Metro Switcher Tabs
+   ========================================================================== */
+.metro-tab {
+  cursor: pointer;
+  user-select: none;
+}
+.metro-tab.active {
+  background: rgba(99, 102, 241, 0.28) !important;
+  border-color: rgba(99, 102, 241, 0.6) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 16px rgba(99, 102, 241, 0.35);
+}
+.metro-tab:hover:not(.active) {
+  background: rgba(30, 41, 59, 0.8) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: #f1f5f9 !important;
+}

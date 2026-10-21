@@ -33,6 +33,48 @@ function getAllBrandEntries() {
  */
 app.get('/api/quick-list', (req, res) => {
   const quickList = [
+    // Calabar Quick Targets
+    {
+      name: "Freddy's Marian",
+      area: "Atekong Drive / Marian",
+      score: 4,
+      tag: "Authentic Dine-In",
+      type: "authentic",
+      badge: "✅ 160-Seat Dine-In",
+      cuisine: "Continental & Lebanese",
+      city: "calabar"
+    },
+    {
+      name: "Etta Agbor Dark Pod",
+      area: "Etta Agbor",
+      score: 96,
+      tag: "Ghost Hive (6 Brands)",
+      type: "ghost",
+      badge: "🚨 6 Co-Located Brands",
+      cuisine: "Suya, Pasta & Wings",
+      city: "calabar"
+    },
+    {
+      name: "Marina Resort Kitchen",
+      area: "Marina Road",
+      score: 3,
+      tag: "Authentic Waterfront",
+      type: "authentic",
+      badge: "✅ 220-Seat Open Kitchen",
+      cuisine: "Fresh Fisherman Soup",
+      city: "calabar"
+    },
+    {
+      name: "MCC Logistics Food Lab",
+      area: "MCC Road",
+      score: 92,
+      tag: "Dark Pod (5 Brands)",
+      type: "ghost",
+      badge: "🚨 5 Virtual Storefronts",
+      cuisine: "Wok & Sliders",
+      city: "calabar"
+    },
+    // Lagos Quick Targets
     {
       name: "Mega Chicken Ikeja",
       area: "Ikeja",
@@ -40,25 +82,8 @@ app.get('/api/quick-list', (req, res) => {
       tag: "Authentic Flagship",
       type: "authentic",
       badge: "✅ 250-Seat Flagship",
-      cuisine: "Nigerian Jollof & Pastries"
-    },
-    {
-      name: "Midnight Noodle Syndicate",
-      area: "Yaba",
-      score: 98,
-      tag: "Ghost Matrix (8 Brands)",
-      type: "ghost",
-      badge: "🚨 8 Co-Located Brands",
-      cuisine: "Spicy Ramen & Street Woks"
-    },
-    {
-      name: "The Place Restaurant VI",
-      area: "Victoria Island",
-      score: 4,
-      tag: "Authentic Lounge",
-      type: "authentic",
-      badge: "✅ 180-Seat Flagship",
-      cuisine: "Asun Jollof & Grills"
+      cuisine: "Nigerian Jollof & Pastries",
+      city: "lagos"
     },
     {
       name: "Midnight Burger Lab",
@@ -67,129 +92,129 @@ app.get('/api/quick-list', (req, res) => {
       tag: "Ghost Hive (7 Brands)",
       type: "ghost",
       badge: "🚨 7 Co-Located Brands",
-      cuisine: "Gourmet Smashed Burgers"
+      cuisine: "Gourmet Smashed Burgers",
+      city: "lagos"
     },
     {
-      name: "Bukka Hut Lekki",
-      area: "Lekki Phase 1",
-      score: 5,
-      tag: "Authentic Traditional",
-      type: "authentic",
-      badge: "✅ 110-Seat Traditional",
-      cuisine: "Amala Dudu & Native Soups"
-    },
-    {
-      name: "Ogba Smoked Ribs & BBQ",
-      area: "Ikeja",
-      score: 95,
-      tag: "Ghost Hive (7 Brands)",
-      type: "ghost",
-      badge: "🚨 7 Shared Kitchen Brands",
-      cuisine: "Slow Smoked Beef Ribs"
-    },
-    {
-      name: "Chicken Republic Lekki",
-      area: "Lekki Phase 1",
-      score: 12,
-      tag: "Authentic Franchise",
-      type: "authentic",
-      badge: "✅ 70-Seat Drive-Thru",
-      cuisine: "Spicy Fried Chicken"
-    },
-    {
-      name: "Terra Kulture Restaurant",
+      name: "The Place Restaurant VI",
       area: "Victoria Island",
       score: 4,
-      tag: "Authentic Dine-In",
+      tag: "Authentic Lounge",
       type: "authentic",
-      badge: "✅ 120-Seat Verified Venue",
-      cuisine: "Contemporary Nigerian Dining"
+      badge: "✅ 180-Seat Flagship",
+      cuisine: "Asun Jollof & Grills",
+      city: "lagos"
     },
     {
-      name: "Domino's Pizza VI",
-      area: "Victoria Island",
-      score: 9,
-      tag: "Authentic Franchise",
-      type: "authentic",
-      badge: "✅ 90-Seat Dual Venue",
-      cuisine: "Hand-Tossed Pizzas"
-    },
-    {
-      name: "The Wok Legend",
-      area: "Victoria Island",
-      score: 89,
-      tag: "Dark Pod (5 Brands)",
-      type: "ghost",
-      badge: "🚨 5 Virtual Brands",
-      cuisine: "Sichuan & Cantonese Stir-Fry"
-    },
-    {
-      name: "Cactus Restaurant",
-      area: "Victoria Island",
-      score: 2,
-      tag: "Authentic Waterfront",
-      type: "authentic",
-      badge: "✅ 175-Seat Verified",
-      cuisine: "Mediterranean & Patisserie"
-    },
-    {
-      name: "Ghost Taco Syndicate",
-      area: "Gbagada",
+      name: "Midnight Noodle Syndicate",
+      area: "Yaba",
       score: 98,
-      tag: "Ghost Hive (7 Brands)",
+      tag: "Ghost Matrix (8 Brands)",
       type: "ghost",
-      badge: "🚨 7 Shared Kitchen Brands",
-      cuisine: "Birria Beef Tacos"
+      badge: "🚨 8 Co-Located Brands",
+      cuisine: "Spicy Ramen & Street Woks",
+      city: "lagos"
     },
+    // Abuja Quick Targets
     {
-      name: "Tastee Fried Chicken",
-      area: "Ikeja GRA",
-      score: 5,
-      tag: "Authentic Fast Food",
+      name: "Nkoyo Wuse 2",
+      area: "Wuse 2",
+      score: 3,
+      tag: "Authentic Heritage",
       type: "authentic",
-      badge: "✅ 110-Seat Dining Hall",
-      cuisine: "Original Recipe Fried Chicken"
+      badge: "✅ Fine Heritage Dining",
+      cuisine: "Spiced Grills",
+      city: "abuja"
     },
     {
-      name: "Festac Wing Society",
-      area: "Festac Town",
-      score: 99,
-      tag: "Ghost Cell (8 Brands)",
+      name: "Wuse Cyber Commissary",
+      area: "Wuse 2",
+      score: 97,
+      tag: "Ghost Hive (6 Brands)",
       type: "ghost",
-      badge: "🚨 8 Virtual Storefronts",
-      cuisine: "Ghost Pepper Wings & Cajun"
+      badge: "🚨 6 Virtual Brands",
+      cuisine: "Midnight Smashed Burgers",
+      city: "abuja"
+    },
+    // Port Harcourt Quick Targets
+    {
+      name: "Genesis Restaurant GRA",
+      area: "GRA Phase 2",
+      score: 4,
+      tag: "Authentic Flagship",
+      type: "authentic",
+      badge: "✅ 150-Seat Flagship",
+      cuisine: "Native Soup & Grills",
+      city: "portharcourt"
     },
     {
-      name: "Bourdillon Truffle Burger",
-      area: "Ikoyi",
+      name: "Peter Odili Dark Commissary",
+      area: "Peter Odili",
+      score: 95,
+      tag: "Ghost Hive (6 Brands)",
+      type: "ghost",
+      badge: "🚨 6 Co-Located Brands",
+      cuisine: "Bole & Wings",
+      city: "portharcourt"
+    },
+    // Ibadan Quick Targets
+    {
+      name: "Iya Meta Amala Bodija",
+      area: "Bodija",
+      score: 3,
+      tag: "Authentic Heritage",
+      type: "authentic",
+      badge: "✅ Heritage Amala Dine-In",
+      cuisine: "Amala Dudu & Abula",
+      city: "ibadan"
+    },
+    {
+      name: "Bodija Dark Commissary",
+      area: "Bodija",
       score: 94,
-      tag: "Dark Pod (5 Brands)",
+      tag: "Ghost Hive (6 Brands)",
       type: "ghost",
-      badge: "🚨 5 Virtual Brands",
-      cuisine: "Wagyu Smashed Beef"
+      badge: "🚨 6 Shared Kitchen Brands",
+      cuisine: "Noodles & Wings",
+      city: "ibadan"
     }
   ];
 
   res.json(quickList);
 });
 
+
 /**
  * GET /api/stats
- * Overview radar telemetry for Lagos food infrastructure
+ * Overview radar telemetry for nationwide or city-specific food infrastructure
  */
 app.get('/api/stats', (req, res) => {
-  const entries = getAllBrandEntries();
-  const virtualBrands = entries.filter(e => e.brand.virtual).length;
-  const authenticBrands = entries.filter(e => !e.brand.virtual).length;
-  const highRiskCount = facilities.filter(f => f.ghostIndexScore >= 75).length;
-  const totalDineInCapacity = facilities.reduce((sum, f) => sum + (f.dineInCapacity || 0), 0);
+  const { city } = req.query;
+  let targetFacilities = facilities;
+  if (city && city.toLowerCase() !== 'all') {
+    targetFacilities = targetFacilities.filter(f => f.city && f.city.toLowerCase() === city.toLowerCase());
+  }
 
-  const areas = [...new Set(facilities.map(f => f.area))];
+  const entries = [];
+  targetFacilities.forEach(fac => {
+    fac.brands.forEach(brand => {
+      entries.push({
+        brand,
+        facility: fac
+      });
+    });
+  });
+  const virtualBrands = entries.filter(e => e.brand.virtual || e.brand.isVirtual).length;
+  const authenticBrands = entries.filter(e => !e.brand.virtual && !e.brand.isVirtual).length;
+  const highRiskCount = targetFacilities.filter(f => f.ghostIndexScore >= 75).length;
+  const totalDineInCapacity = targetFacilities.reduce((sum, f) => sum + (f.dineInCapacity || 0), 0);
+
+  const areas = [...new Set(targetFacilities.map(f => f.area))];
 
   res.json({
     status: "RADAR_ONLINE",
-    meshNode: "LAGOS-SURVEILLANCE-NODE-01",
-    totalFacilitiesTracked: facilities.length,
+    meshNode: city && city.toLowerCase() !== 'all' ? `${city.toUpperCase()}-SURVEILLANCE-NODE-01` : "NATIONWIDE-SURVEILLANCE-NODE-01",
+    totalFacilitiesTracked: targetFacilities.length,
     totalBrandsMonitored: entries.length,
     virtualDarkBrands: virtualBrands,
     authenticDineInVenues: authenticBrands,
@@ -202,16 +227,20 @@ app.get('/api/stats', (req, res) => {
 
 /**
  * GET /api/facilities
- * Returns all facilities or filter by area
+ * Returns all facilities or filter by area and/or city
  */
 app.get('/api/facilities', (req, res) => {
-  const { area } = req.query;
+  const { area, city } = req.query;
   let results = facilities;
+  if (city && city.toLowerCase() !== 'all') {
+    results = results.filter(f => f.city && f.city.toLowerCase() === city.toLowerCase());
+  }
   if (area) {
     results = results.filter(f => f.area.toLowerCase() === area.toLowerCase());
   }
   res.json(results);
 });
+
 
 /**
  * GET /api/facilities/:id
@@ -250,7 +279,7 @@ app.get('/api/inspect', (req, res) => {
     const brandName = item.brand.name;
     const brandLower = brandName.toLowerCase();
     const aliases = (item.brand.aliases || []).map(a => a.toLowerCase());
-    const candidateNames = [brandLower, ...aliases];
+    const candidateNames = [brandLower, ...aliases, item.facility.facilityName.toLowerCase()];
 
     let maxEntryScore = 0;
     let bestMethod = 'fuzzy';
@@ -311,7 +340,7 @@ app.get('/api/inspect', (req, res) => {
 
     return res.status(404).json({
       success: false,
-      message: `No matching brand found for "${query}" in Lagos surveillance radar.`,
+      message: `No matching brand found for "${query}" in nationwide surveillance radar.`,
       query,
       suggestions
     });

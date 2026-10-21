@@ -817,7 +817,8 @@ document.addEventListener('DOMContentLoaded', () => {
     hideResultCard();
     searchInput.focus();
     if (leafletMap) {
-      leafletMap.flyTo([6.5244, 3.3792], 12, { duration: 1.0 });
+      const region = METRO_REGIONS[currentMetro] || METRO_REGIONS.all;
+      leafletMap.flyTo(region.center, region.zoom, { duration: 1.0 });
     }
   });
 
@@ -842,14 +843,136 @@ document.addEventListener('DOMContentLoaded', () => {
   const mapMarkers = new Map();
   const brandToFacilityMap = new Map();
 
+  const METRO_REGIONS = {
+    all: {
+      center: [9.0820, 8.6753],
+      zoom: 6,
+      name: "All Nigeria",
+      corridor: "Nationwide Forensic Radar",
+      hotspotsTitle: "Nationwide Surveillance Hotspots",
+      meshBadge: "NIGERIA URBAN MESH",
+      desc: "Select any monitored regional corridor to inspect active delivery kitchens"
+    },
+    calabar: {
+      center: [4.9589, 8.3269],
+      zoom: 13,
+      name: "Calabar",
+      corridor: "Calabar Forensic Corridor",
+      hotspotsTitle: "Calabar Surveillance Hotspots",
+      meshBadge: "CROSS RIVER RADAR",
+      desc: "Monitored dining landmarks & delivery commissary pods across Marian, Marina & Etta Agbor"
+    },
+    lagos: {
+      center: [6.5244, 3.3792],
+      zoom: 12,
+      name: "Lagos",
+      corridor: "Lagos Forensic Corridor",
+      hotspotsTitle: "Lagos Surveillance Hotspots",
+      meshBadge: "LAGOS URBAN MESH",
+      desc: "Monitored commercial delivery hubs across Lekki, Victoria Island, Ikeja & Yaba"
+    },
+    abuja: {
+      center: [9.0765, 7.3986],
+      zoom: 12,
+      name: "Abuja FCT",
+      corridor: "Abuja FCT Forensic Corridor",
+      hotspotsTitle: "Abuja FCT Surveillance Hotspots",
+      meshBadge: "ABUJA CAPITAL RADAR",
+      desc: "Monitored dining venues & dark kitchen pods across Wuse 2, Garki & Maitama"
+    },
+    portharcourt: {
+      center: [4.8156, 7.0498],
+      zoom: 13,
+      name: "Port Harcourt",
+      corridor: "Port Harcourt Forensic Corridor",
+      hotspotsTitle: "Port Harcourt Surveillance Hotspots",
+      meshBadge: "RIVERS METRO MESH",
+      desc: "Monitored restaurant complexes & dark commissary hives across GRA Phase 2 & Peter Odili"
+    },
+    ibadan: {
+      center: [7.3775, 3.9470],
+      zoom: 13,
+      name: "Ibadan",
+      corridor: "Ibadan Forensic Corridor",
+      hotspotsTitle: "Ibadan Surveillance Hotspots",
+      meshBadge: "OYO METRO MESH",
+      desc: "Monitored heritage kitchens & cloud depots across Bodija & Ring Road"
+    }
+  };
+
+  let currentMetro = 'all';
+  let allFacilitiesData = [];
+
+  function initMetroSwitcher() {
+    const switcher = document.getElementById('metro-switcher-tabs');
+    if (!switcher) return;
+
+    const tabs = switcher.querySelectorAll('.metro-tab');
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const city = tab.dataset.city || 'all';
+        switchMetro(city, true);
+        audioFX.playRadarPing(840);
+        triggerRadarShockwave('rgba(99, 102, 241,');
+      });
+    });
+  }
+
+  function switchMetro(cityKey, shouldFly = true) {
+    currentMetro = cityKey || 'all';
+    const region = METRO_REGIONS[currentMetro] || METRO_REGIONS.all;
+
+    // Update Tab UI state
+    const switcher = document.getElementById('metro-switcher-tabs');
+    if (switcher) {
+      const tabs = switcher.querySelectorAll('.metro-tab');
+      tabs.forEach(t => {
+        const isActive = (t.dataset.city || 'all') === currentMetro;
+        if (isActive) {
+          t.className = 'metro-tab active px-3.5 py-1.5 rounded-xl text-xs font-mono transition-all duration-200 border border-brand-500/50 bg-brand-500/20 text-white font-semibold shadow-[0_0_12px_rgba(99,102,241,0.35)]';
+        } else {
+          t.className = 'metro-tab px-3.5 py-1.5 rounded-xl text-xs font-mono transition-all duration-200 border border-white/5 bg-slate-900/60 text-slate-400 hover:text-white hover:border-white/20';
+        }
+      });
+    }
+
+    // Camera animation
+    if (shouldFly && leafletMap) {
+      leafletMap.flyTo(region.center, region.zoom, { duration: 1.2 });
+    }
+
+    // Filter locations
+    const filtered = (currentMetro === 'all')
+      ? allFacilitiesData
+      : allFacilitiesData.filter(f => f.city && f.city.toLowerCase() === currentMetro.toLowerCase());
+
+    plotFacilityMarkers(filtered);
+    renderHotspots(filtered);
+
+    // Update titles & labels
+    const mapTitleEl = document.getElementById('map-corridor-title');
+    if (mapTitleEl) mapTitleEl.textContent = region.corridor;
+
+    const hotspotsTitleEl = document.getElementById('hotspots-section-title');
+    if (hotspotsTitleEl) hotspotsTitleEl.textContent = region.hotspotsTitle;
+
+    const hotspotsDescEl = document.getElementById('hotspots-section-desc');
+    if (hotspotsDescEl) hotspotsDescEl.textContent = region.desc;
+
+    const meshBadgeEl = document.getElementById('hotspots-mesh-badge');
+    if (meshBadgeEl) meshBadgeEl.textContent = region.meshBadge;
+
+    loadTelemetry(currentMetro);
+  }
+
   function initForensicMap() {
     const mapEl = document.getElementById('forensic-map');
     if (!mapEl || typeof L === 'undefined') return;
 
     try {
       leafletMap = L.map('forensic-map', {
-        center: [6.5244, 3.3792],
-        zoom: 12,
+        center: [9.0820, 8.6753],
+        zoom: 6,
         zoomControl: true,
         attributionControl: false
       });
@@ -870,6 +993,7 @@ document.addEventListener('DOMContentLoaded', () => {
       console.warn('Leaflet map initialization warning:', err);
     }
   }
+
 
   function plotFacilityMarkers(facilities) {
     if (!leafletMap || !Array.isArray(facilities)) return;
@@ -974,6 +1098,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const coords = facOrCoord.coordinates || facOrCoord;
     if (!coords || typeof coords.lat !== 'number' || typeof coords.lng !== 'number') return;
 
+    if (facOrCoord.city && currentMetro !== 'all' && facOrCoord.city.toLowerCase() !== currentMetro.toLowerCase()) {
+      switchMetro(facOrCoord.city.toLowerCase(), false);
+    }
+
     leafletMap.flyTo([coords.lat, coords.lng], 14, { duration: 1.2 });
 
     const facId = facOrCoord.id;
@@ -1022,16 +1150,17 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================
   // 8. DATA INGESTION: STATS & QUICK-LIST
   // ==========================================
-  async function loadTelemetry() {
+  async function loadTelemetry(city = 'all') {
     try {
-      const res = await fetch('/api/stats');
+      const url = city && city !== 'all' ? `/api/stats?city=${encodeURIComponent(city)}` : '/api/stats';
+      const res = await fetch(url);
       if (!res.ok) return;
       const data = await res.json();
 
       if (telemetryBrands) telemetryBrands.textContent = data.totalBrandsMonitored;
       if (telemetryGhosts) telemetryGhosts.textContent = `${data.highRiskGhostClusters} Hives`;
       if (telemetryAuthentic) {
-        const ratio = Math.round((data.authenticDineInVenues / data.totalBrandsMonitored) * 100);
+        const ratio = data.totalBrandsMonitored > 0 ? Math.round((data.authenticDineInVenues / data.totalBrandsMonitored) * 100) : 0;
         telemetryAuthentic.textContent = `${ratio}%`;
       }
       if (headerHubsCount) headerHubsCount.textContent = `${data.totalFacilitiesTracked} FACILITIES`;
@@ -1049,12 +1178,13 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (err) {
       console.warn('Using fallback quick pills:', err);
       renderQuickPills([
+        { name: "Freddy's Marian", badge: "✅ 160-Seat Dine-In", type: "authentic", score: 4 },
+        { name: "Etta Agbor Dark Pod", badge: "🚨 6 Brands", type: "ghost", score: 96 },
+        { name: "Mega Chicken Ikeja", badge: "✅ 250-Seat Flagship", type: "authentic", score: 2 },
         { name: "Midnight Burger Lab", badge: "🚨 7 Brands", type: "ghost", score: 96 },
-        { name: "Terra Kulture Restaurant", badge: "✅ 120-Seat Dine-In", type: "authentic", score: 4 },
-        { name: "The Wok Legend", badge: "🚨 5 Brands", type: "ghost", score: 89 },
-        { name: "The Yellow Chilli", badge: "✅ 85-Seat Standalone", type: "authentic", score: 5 },
-        { name: "Suya Express 24/7", badge: "🚨 4 Brands", type: "ghost", score: 79 },
-        { name: "Ocean Basket Lekki", badge: "✅ 150-Seat Waterfront", type: "authentic", score: 7 }
+        { name: "Nkoyo Wuse 2", badge: "✅ Fine Heritage Dining", type: "authentic", score: 3 },
+        { name: "Genesis Restaurant GRA", badge: "✅ 150-Seat Flagship", type: "authentic", score: 4 },
+        { name: "Iya Meta Amala Bodija", badge: "✅ Heritage Amala", type: "authentic", score: 3 }
       ]);
     }
   }
@@ -1095,9 +1225,8 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const res = await fetch('/api/facilities');
       if (!res.ok) return;
-      const facilities = await res.json();
-      renderHotspots(facilities);
-      plotFacilityMarkers(facilities);
+      allFacilitiesData = await res.json();
+      switchMetro(currentMetro, false);
     } catch (err) {
       console.warn('Hotspots offline:', err);
     }
@@ -1119,7 +1248,7 @@ document.addEventListener('DOMContentLoaded', () => {
       card.innerHTML = `
         <div class="space-y-2">
           <div class="flex items-center justify-between text-xs font-mono">
-            <span class="text-slate-400 uppercase text-[10px] tracking-wider">${escapeHtml(fac.area)}</span>
+            <span class="text-slate-400 uppercase text-[10px] tracking-wider">${escapeHtml(fac.area)}, ${(fac.city || 'NIGERIA').toUpperCase()}</span>
             <span class="px-2 py-0.5 rounded border text-[10px] ${riskBadgeClass}">
               ${fac.ghostIndexScore}% GHOST INDEX
             </span>
@@ -1229,7 +1358,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Header metadata
     dossierFacilityCode.textContent = facility.code || facility.id;
-    dossierAreaBadge.textContent = `${facility.area.toUpperCase()}, LAGOS`;
+    dossierAreaBadge.textContent = `${facility.area.toUpperCase()}, ${(facility.city || 'NIGERIA').toUpperCase()}`;
     dossierMatchConfidence.textContent = `${matchConfidence}% MATCH CONFIDENCE`;
 
     // Brand info
@@ -1427,6 +1556,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Initial Data Ingestion & Map Setup
+  initMetroSwitcher();
   initForensicMap();
   loadTelemetry();
   loadQuickList();
