@@ -854,10 +854,9 @@ document.addEventListener('DOMContentLoaded', () => {
         attributionControl: false
       });
 
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
-        subdomains: 'abcd',
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+        attribution: '&copy; OpenStreetMap contributors'
       }).addTo(leafletMap);
 
       setTimeout(() => {
@@ -889,16 +888,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const score = fac.ghostIndexScore || 0;
       let blipClass = 'cyber-blip-green';
-      let statusColor = '#00ff88';
+      let statusColor = '#10B981';
       let statusText = 'AUTHENTIC RESTAURANT';
 
       if (score >= 75) {
         blipClass = 'cyber-blip-red';
-        statusColor = '#ff1a53';
+        statusColor = '#F43F5E';
         statusText = 'CRITICAL GHOST HIVE';
       } else if (score >= 40) {
         blipClass = 'cyber-blip-amber';
-        statusColor = '#f59e0b';
+        statusColor = '#F59E0B';
         statusText = 'MODERATE CO-LOCATION';
       }
 
@@ -1252,24 +1251,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const isHighRisk = ghostIndexScore >= 75;
     const isModerateRisk = ghostIndexScore >= 40 && ghostIndexScore < 75;
-    let scoreColor = '#00ff88';
+    let scoreColor = '#10B981';
 
     if (isHighRisk) {
-      dossierRiskBanner.className = 'p-3.5 rounded-xl border flex items-center gap-3 bg-cyber-red/15 border-cyber-red/50 text-cyber-red shadow-[0_0_20px_rgba(255,26,83,0.25)]';
+      dossierRiskBanner.className = 'p-3.5 rounded-xl border flex items-center gap-3 bg-cyber-red/15 border-cyber-red/50 text-cyber-red shadow-[0_0_20px_rgba(244,63,94,0.25)]';
       dossierRiskIcon.textContent = '🚨';
-      scoreColor = '#ff1a53';
+      scoreColor = '#F43F5E';
       dossierScoreVerdict.textContent = 'CRITICAL SHARING DETECTED';
       dossierScoreVerdict.className = 'mt-2.5 text-xs font-mono font-semibold text-cyber-red';
     } else if (isModerateRisk) {
       dossierRiskBanner.className = 'p-3.5 rounded-xl border flex items-center gap-3 bg-cyber-amber/15 border-cyber-amber/50 text-cyber-amber shadow-[0_0_20px_rgba(245,158,11,0.25)]';
       dossierRiskIcon.textContent = '⚠️';
-      scoreColor = '#f59e0b';
+      scoreColor = '#F59E0B';
       dossierScoreVerdict.textContent = 'MODERATE CO-LOCATION';
       dossierScoreVerdict.className = 'mt-2.5 text-xs font-mono font-semibold text-cyber-amber';
     } else {
-      dossierRiskBanner.className = 'p-3.5 rounded-xl border flex items-center gap-3 bg-cyber-green/15 border-cyber-green/50 text-cyber-green shadow-[0_0_20px_rgba(0,255,136,0.25)]';
+      dossierRiskBanner.className = 'p-3.5 rounded-xl border flex items-center gap-3 bg-cyber-green/15 border-cyber-green/50 text-cyber-green shadow-[0_0_20px_rgba(16,185,129,0.25)]';
       dossierRiskIcon.textContent = '✅';
-      scoreColor = '#00ff88';
+      scoreColor = '#10B981';
       dossierScoreVerdict.textContent = 'VERIFIED AUTHENTIC VENUE';
       dossierScoreVerdict.className = 'mt-2.5 text-xs font-mono font-semibold text-cyber-green';
     }

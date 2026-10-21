@@ -3,14 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ghost Kitchen Radar // Lagos Surveillance Node</title>
+  <title>Ghost Kitchen Radar — Forensic Intelligence Platform</title>
+
   <!-- Leaflet CSS and JS CDN -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  
   <!-- Three.js CDN for 3D Background Visuals -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -20,22 +25,36 @@
       theme: {
         extend: {
           colors: {
+            obsidian: {
+              950: '#070A12',
+              900: '#090D16',
+              850: '#0F172A',
+              800: '#1E293B',
+              700: '#334155'
+            },
+            brand: {
+              DEFAULT: '#6366F1',
+              400: '#818CF8',
+              500: '#6366F1',
+              600: '#4F46E5',
+              700: '#4338CA'
+            },
             cyber: {
-              black: '#05070b',
-              darker: '#090d16',
-              card: '#0e1422',
-              border: '#1a243a',
-              hover: '#202c46',
-              cyan: '#00f0ff',
-              green: '#00ff88',
-              amber: '#f59e0b',
-              red: '#ff1a53',
-              purple: '#9d4edd'
+              black: '#070A12',
+              darker: '#090D16',
+              card: '#0F172A',
+              border: 'rgba(255, 255, 255, 0.08)',
+              hover: '#1E293B',
+              cyan: '#6366F1',
+              green: '#10B981',
+              amber: '#F59E0B',
+              red: '#F43F5E',
+              purple: '#8B5CF6'
             }
           },
           fontFamily: {
-            mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
-            sans: ['"Inter"', 'system-ui', '-apple-system', 'sans-serif']
+            sans: ['"Inter"', '-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"SF Pro Text"', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', '"SF Mono"', 'Menlo', 'Monaco', 'Consolas', 'monospace']
           },
           animation: {
             'radar-spin': 'radarSpin 3s linear infinite',
@@ -58,86 +77,78 @@
       }
     }
   </script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css">
 </head>
-<body class="bg-cyber-black text-slate-100 min-h-screen font-sans antialiased selection:bg-cyber-cyan selection:text-cyber-black flex flex-col relative overflow-x-hidden">
+<body class="bg-obsidian-950 text-slate-100 min-h-screen font-sans antialiased selection:bg-brand-500 selection:text-white flex flex-col relative overflow-x-hidden">
   
-  <!-- 3D Three.js Background Canvas (Particle Cloud & Rotating Wireframe Globe) -->
-  <canvas id="three-canvas" class="fixed inset-0 pointer-events-none z-0"></canvas>
+  <!-- 3D Three.js Background Canvas (Ambient Particles & Wireframe Geometry) -->
+  <canvas id="three-canvas" class="fixed inset-0 pointer-events-none z-0 opacity-40"></canvas>
 
-  <!-- Cyber Scanline Overlay -->
-  <div class="fixed inset-0 pointer-events-none scanline-overlay z-10 opacity-60"></div>
+  <!-- Ambient Radial Gradients (Subtle Linear / Apple atmospheric glow) -->
+  <div class="fixed top-0 left-1/2 -translate-x-1/2 w-[900px] h-[400px] bg-brand-500/10 blur-[160px] pointer-events-none z-0"></div>
+  <div class="fixed bottom-0 right-10 w-[600px] h-[400px] bg-cyber-red/6 blur-[180px] pointer-events-none z-0"></div>
 
-  <!-- Ambient Glowing Radial Gradients -->
-  <div class="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[350px] bg-cyber-cyan/8 blur-[150px] pointer-events-none z-0"></div>
-  <div class="fixed bottom-0 right-10 w-[600px] h-[400px] bg-cyber-red/8 blur-[180px] pointer-events-none z-0"></div>
-
-  <!-- Header Section -->
-  <header class="border-b border-cyber-border/80 bg-cyber-darker/80 backdrop-blur-xl sticky top-0 z-50">
+  <!-- Header Section (Linear style frosted navbar) -->
+  <header class="border-b border-white/[0.06] bg-obsidian-900/80 backdrop-blur-2xl sticky top-0 z-50 transition-colors">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       
-      <!-- Brand Logo / Identity -->
+      <!-- Brand Identity -->
       <div class="flex items-center gap-3.5">
-        <div class="relative w-10 h-10 rounded-lg bg-cyber-card/90 border border-cyber-cyan/50 flex items-center justify-center shadow-[0_0_20px_rgba(0,240,255,0.3)] group cursor-pointer">
-          <!-- Animated Radar Sweep Icon -->
-          <svg class="w-5 h-5 text-cyber-cyan" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <div class="relative w-9 h-9 rounded-xl bg-slate-900/90 border border-white/10 flex items-center justify-center shadow-md group cursor-pointer">
+          <svg class="w-4 h-4 text-brand-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="10" stroke-opacity="0.3"></circle>
             <circle cx="12" cy="12" r="6" stroke-opacity="0.5"></circle>
-            <circle cx="12" cy="12" r="2" class="fill-cyber-cyan"></circle>
-            <path d="M12 12 L20 6" class="animate-radar-spin origin-[12px_12px] stroke-cyber-cyan"></path>
+            <circle cx="12" cy="12" r="2" class="fill-brand-400"></circle>
+            <path d="M12 12 L20 6" class="animate-radar-spin origin-[12px_12px] stroke-brand-400"></path>
           </svg>
-          <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-cyber-green rounded-full animate-ping"></span>
-          <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-cyber-green rounded-full shadow-[0_0_8px_#00ff88]"></span>
+          <span class="absolute -top-0.5 -right-0.5 w-2 h-2 bg-cyber-green rounded-full shadow-[0_0_8px_#10B981]"></span>
         </div>
         <div>
           <div class="flex items-center gap-2">
-            <span class="font-bold tracking-wider font-mono text-sm sm:text-base text-white">GHOST KITCHEN RADAR</span>
-            <span class="hidden sm:inline-block text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-cyber-cyan/10 text-cyber-cyan border border-cyber-cyan/40 shadow-[0_0_10px_rgba(0,240,255,0.2)]">LOS-SURVEILLANCE</span>
+            <span class="font-semibold tracking-tight text-white text-sm sm:text-base">Ghost Kitchen Radar</span>
+            <span class="hidden sm:inline-block text-[10px] uppercase font-mono px-2 py-0.5 rounded-full bg-brand-500/10 text-brand-400 border border-brand-500/20 font-medium">LOS-SURVEILLANCE</span>
           </div>
-          <p class="text-[11px] text-slate-400 font-mono tracking-tight flex items-center gap-1.5">
-            <span class="w-1.5 h-1.5 rounded-full bg-cyber-cyan animate-pulse"></span>
-            LAGOS FOOD INFRASTRUCTURE // 3D FORENSIC RADAR
+          <p class="text-[11px] text-slate-400 tracking-tight flex items-center gap-1.5 font-mono">
+            <span class="w-1.5 h-1.5 rounded-full bg-brand-400 animate-pulse"></span>
+            LAGOS FOOD INFRASTRUCTURE // FORENSIC RADAR
           </p>
         </div>
       </div>
 
       <!-- Live Status Indicators & Audio FX Controller -->
-      <div class="flex items-center gap-2 sm:gap-3.5 font-mono text-xs">
+      <div class="flex items-center gap-2 sm:gap-3 font-mono text-xs">
         
         <!-- Synthetic Audio FX Toggle Button -->
         <button 
           id="audio-toggle-btn"
           type="button"
-          class="flex items-center gap-1.5 bg-cyber-card/90 border border-cyber-border hover:border-cyber-cyan/60 px-2.5 py-1.5 rounded-lg text-[11px] transition-all text-slate-300 hover:text-cyber-cyan active:scale-95 shadow-sm"
-          title="Toggle Cyber Sound Effects"
+          class="flex items-center gap-1.5 bg-slate-900/80 border border-white/10 hover:border-brand-500/40 px-2.5 py-1.5 rounded-lg text-[11px] transition-all text-slate-300 hover:text-white active:scale-95 shadow-sm"
+          title="Toggle Synthetic Sound FX"
         >
           <span id="audio-icon">🔊</span>
           <span class="hidden sm:inline" id="audio-label">FX: ON</span>
         </button>
 
         <!-- Live Pulse Node -->
-        <div class="flex items-center gap-2 bg-cyber-card/90 border border-cyber-border px-2.5 py-1.5 rounded-lg backdrop-blur-md">
+        <div class="flex items-center gap-2 bg-slate-900/80 border border-white/10 px-2.5 py-1.5 rounded-lg backdrop-blur-md">
           <span class="relative flex h-2 w-2">
             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyber-green opacity-75"></span>
-            <span class="relative inline-flex rounded-full h-2 w-2 bg-cyber-green shadow-[0_0_6px_#00ff88]"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-cyber-green shadow-[0_0_6px_#10B981]"></span>
           </span>
-          <span class="text-slate-300 hidden md:inline text-[11px]">RADAR:</span>
-          <span class="text-cyber-green font-bold text-[11px]" id="header-radar-status">ONLINE</span>
+          <span class="text-slate-400 hidden md:inline text-[11px]">RADAR:</span>
+          <span class="text-cyber-green font-semibold text-[11px]" id="header-radar-status">ONLINE</span>
         </div>
 
         <!-- Mapped Hubs Counter -->
-        <div class="hidden sm:flex items-center gap-2 bg-cyber-card/90 border border-cyber-border px-2.5 py-1.5 rounded-lg text-[11px]">
+        <div class="hidden sm:flex items-center gap-2 bg-slate-900/80 border border-white/10 px-2.5 py-1.5 rounded-lg text-[11px]">
           <span class="text-slate-400">HUBS:</span>
-          <span class="text-cyber-cyan font-bold" id="header-hubs-count">10 FACILITIES</span>
+          <span class="text-brand-400 font-semibold" id="header-hubs-count">39 FACILITIES</span>
         </div>
 
         <!-- Live Clock -->
-        <div class="hidden lg:flex items-center gap-1.5 bg-cyber-card/90 border border-cyber-border px-2.5 py-1.5 rounded-lg text-[11px] text-slate-300">
+        <div class="hidden lg:flex items-center gap-1.5 bg-slate-900/80 border border-white/10 px-2.5 py-1.5 rounded-lg text-[11px] text-slate-300">
           <span class="text-slate-500">WAT:</span>
-          <span id="live-clock" class="font-semibold text-slate-200">--:--:--</span>
+          <span id="live-clock" class="font-medium text-slate-200">--:--:--</span>
         </div>
       </div>
 
@@ -145,49 +156,49 @@
   </header>
 
   <!-- Main Content Wrapper -->
-  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 z-20 space-y-10">
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 z-20 space-y-10">
 
     <!-- Hero Section with Sonar Radar Sweep Canvas in Background -->
-    <section class="text-center max-w-3xl mx-auto space-y-6 pt-4 sm:pt-6 relative">
+    <section class="text-center max-w-3xl mx-auto space-y-6 pt-2 sm:pt-4 relative">
       
       <!-- Animated Rotating Sonar Radar Sweep Dish Canvas -->
       <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none -z-10 flex items-center justify-center">
-        <canvas id="radar-sonar-canvas" width="620" height="620" class="opacity-35"></canvas>
-        <div id="radar-pulse-ring" class="absolute w-40 h-40 rounded-full border border-cyber-cyan opacity-0 pointer-events-none"></div>
+        <canvas id="radar-sonar-canvas" width="620" height="620" class="opacity-25"></canvas>
+        <div id="radar-pulse-ring" class="absolute w-40 h-40 rounded-full border border-brand-500/30 opacity-0 pointer-events-none"></div>
       </div>
 
-      <!-- Classification Tag -->
-      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-cyber-cyan/40 bg-cyber-cyan/10 text-cyber-cyan font-mono text-xs tracking-wider uppercase backdrop-blur-md shadow-[0_0_20px_rgba(0,240,255,0.2)]">
-        <span class="w-2 h-2 rounded-full bg-cyber-cyan animate-ping"></span>
-        <span>Commercial Food Delivery Intelligence // Lagos Surveillance Node</span>
+      <!-- Classification Tag (Apple style pill) -->
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-white/10 bg-white/[0.03] text-slate-300 text-xs font-medium tracking-wide backdrop-blur-xl shadow-sm">
+        <span class="w-1.5 h-1.5 rounded-full bg-brand-400 animate-pulse shadow-[0_0_8px_#6366F1]"></span>
+        <span>Commercial Food Delivery Intelligence &bull; Lagos Surveillance Node</span>
       </div>
 
-      <!-- Required Hero Headline -->
-      <h1 class="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-tight">
-        Who is actually cooking your <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyber-cyan via-teal-300 to-cyber-green drop-shadow-[0_0_25px_rgba(0,240,255,0.4)]">delivery food?</span>
+      <!-- Hero Headline (Linear style typography) -->
+      <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-tight">
+        Who is actually cooking your <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 via-sky-300 to-cyber-green drop-shadow-[0_0_30px_rgba(99,102,241,0.35)]">delivery food?</span>
       </h1>
 
-      <p class="text-sm sm:text-base text-slate-300 max-w-2xl mx-auto leading-relaxed">
+      <p class="text-sm sm:text-base text-slate-400 max-w-2xl mx-auto leading-relaxed">
         Cross-referencing food delivery apps against verified commercial extraction hoods, co-located kitchen bays, and dark commissary pods across Lekki, Victoria Island, Ikeja, and Surulere.
       </p>
 
-      <!-- Telemetry Highlights Bar (Glassmorphic) -->
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 max-w-2xl mx-auto font-mono text-xs">
-        <div class="glass-card p-3 rounded-xl text-center border-cyber-border hover:border-cyber-cyan/40 transition-colors">
-          <div class="text-slate-400 text-[10px] uppercase tracking-wider">Tracked Brands</div>
-          <div class="text-lg sm:text-xl font-bold text-white mt-0.5" id="telemetry-brands">32</div>
+      <!-- Telemetry Highlights Bar (Clean Frosted Glass Cards) -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 max-w-2xl mx-auto text-xs">
+        <div class="glass-card p-3.5 rounded-2xl text-center border-white/10 hover:border-brand-500/40 transition-colors shadow-lg">
+          <div class="text-slate-400 text-[10px] uppercase font-mono tracking-wider">Tracked Brands</div>
+          <div class="text-lg sm:text-xl font-bold text-white mt-1" id="telemetry-brands">109</div>
         </div>
-        <div class="glass-card p-3 rounded-xl text-center border-cyber-border hover:border-cyber-red/40 transition-colors">
-          <div class="text-slate-400 text-[10px] uppercase tracking-wider">Ghost Hives</div>
-          <div class="text-lg sm:text-xl font-bold text-cyber-red mt-0.5" id="telemetry-ghosts">5 Pods</div>
+        <div class="glass-card p-3.5 rounded-2xl text-center border-white/10 hover:border-cyber-red/40 transition-colors shadow-lg">
+          <div class="text-slate-400 text-[10px] uppercase font-mono tracking-wider">Ghost Hives</div>
+          <div class="text-lg sm:text-xl font-bold text-cyber-red mt-1" id="telemetry-ghosts">12 Pods</div>
         </div>
-        <div class="glass-card p-3 rounded-xl text-center border-cyber-border hover:border-cyber-amber/40 transition-colors">
-          <div class="text-slate-400 text-[10px] uppercase tracking-wider">Max in 1 Room</div>
-          <div class="text-lg sm:text-xl font-bold text-cyber-amber mt-0.5">7 Brands</div>
+        <div class="glass-card p-3.5 rounded-2xl text-center border-white/10 hover:border-cyber-amber/40 transition-colors shadow-lg">
+          <div class="text-slate-400 text-[10px] uppercase font-mono tracking-wider">Max in 1 Room</div>
+          <div class="text-lg sm:text-xl font-bold text-cyber-amber mt-1">8 Brands</div>
         </div>
-        <div class="glass-card p-3 rounded-xl text-center border-cyber-border hover:border-cyber-green/40 transition-colors">
-          <div class="text-slate-400 text-[10px] uppercase tracking-wider">Authentic Ratio</div>
-          <div class="text-lg sm:text-xl font-bold text-cyber-green mt-0.5" id="telemetry-authentic">40%</div>
+        <div class="glass-card p-3.5 rounded-2xl text-center border-white/10 hover:border-cyber-green/40 transition-colors shadow-lg">
+          <div class="text-slate-400 text-[10px] uppercase font-mono tracking-wider">Authentic Ratio</div>
+          <div class="text-lg sm:text-xl font-bold text-cyber-green mt-1" id="telemetry-authentic">26%</div>
         </div>
       </div>
 
@@ -196,13 +207,13 @@
     <!-- Search Section & Quick-Test Suggestion Pills -->
     <section class="max-w-3xl mx-auto space-y-4">
       
-      <!-- Search Input Container with Glassmorphism & Neon Glow -->
-      <div class="relative glass-card rounded-2xl border border-cyber-border focus-within:border-cyber-cyan focus-within:shadow-[0_0_35px_rgba(0,240,255,0.35)] transition-all duration-300">
-        <form id="search-form" class="flex items-center p-2 sm:p-2.5 gap-2">
+      <!-- Modern Search Bar (Linear style with subtle border & focus ring) -->
+      <div class="relative glass-card rounded-2xl border border-white/10 p-2 shadow-2xl focus-within:border-brand-500/60 focus-within:ring-2 focus-within:ring-brand-500/20 transition-all duration-200">
+        <form id="search-form" class="flex items-center gap-2">
           
-          <!-- Search Icon with Radar Sweep effect -->
-          <div class="pl-3.5 text-cyber-cyan flex items-center pointer-events-none">
-            <svg class="w-5 h-5 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <!-- Search Icon -->
+          <div class="pl-3.5 text-slate-400 flex items-center pointer-events-none">
+            <svg class="w-5 h-5 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
             </svg>
           </div>
@@ -212,7 +223,7 @@
             type="text" 
             id="search-input"
             class="flex-1 bg-transparent text-white placeholder-slate-500 font-sans text-sm sm:text-base focus:outline-none px-2 py-2"
-            placeholder="Inspect any restaurant brand (e.g. Midnight Burger, Terra Kulture, Suya Express)..."
+            placeholder="Inspect any restaurant brand (e.g. Mega Chicken, Ghost Taco, Midnight Burger)..."
             autocomplete="off"
             spellcheck="false"
           />
@@ -221,7 +232,7 @@
           <button 
             type="button" 
             id="clear-btn" 
-            class="hidden text-slate-500 hover:text-slate-300 p-1.5 text-sm font-mono transition-colors rounded-lg hover:bg-slate-800"
+            class="hidden text-slate-500 hover:text-slate-200 p-1.5 text-xs font-mono transition-colors rounded-lg hover:bg-slate-800/80"
             title="Clear search"
           >
             ✕
@@ -231,7 +242,7 @@
           <button 
             type="submit" 
             id="scan-btn"
-            class="bg-cyber-cyan text-cyber-black font-mono font-bold text-xs sm:text-sm px-5 sm:px-7 py-3 rounded-xl hover:bg-white hover:shadow-[0_0_25px_rgba(0,240,255,0.6)] transition-all flex items-center gap-2 whitespace-nowrap active:scale-95 group"
+            class="bg-brand-600 hover:bg-brand-500 text-white font-medium text-xs sm:text-sm px-6 py-2.5 rounded-xl transition-all shadow-[0_0_20px_rgba(99,102,241,0.35)] active:scale-95 flex items-center gap-2 whitespace-nowrap group"
           >
             <span>SCAN</span>
             <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -245,28 +256,49 @@
       <div class="space-y-2.5">
         <div class="flex items-center justify-between text-xs font-mono text-slate-400 px-1">
           <span class="flex items-center gap-1.5">
-            <span class="text-cyber-cyan text-sm">⚡</span>
+            <span class="text-brand-400 text-sm">⚡</span>
             <span>QUICK-TEST RADAR TARGETS:</span>
           </span>
-          <span class="text-[11px] text-slate-500 hidden sm:inline">Click any pill to trigger instant radar ping & inspection</span>
+          <span class="text-[11px] text-slate-500 hidden sm:inline font-sans">Click any pill to trigger instant radar ping</span>
         </div>
 
-        <!-- Pills Grid / Flex -->
+        <!-- Pills Container -->
         <div id="quick-pills-container" class="flex flex-wrap gap-2.5 pt-1">
           <!-- Loading placeholder pills -->
-          <div class="h-8 w-36 bg-cyber-card/60 animate-pulse rounded-lg border border-cyber-border"></div>
-          <div class="h-8 w-44 bg-cyber-card/60 animate-pulse rounded-lg border border-cyber-border"></div>
-          <div class="h-8 w-32 bg-cyber-card/60 animate-pulse rounded-lg border border-cyber-border"></div>
-          <div class="h-8 w-40 bg-cyber-card/60 animate-pulse rounded-lg border border-cyber-border"></div>
+          <div class="h-8 w-36 bg-slate-900/60 animate-pulse rounded-xl border border-white/5"></div>
+          <div class="h-8 w-44 bg-slate-900/60 animate-pulse rounded-xl border border-white/5"></div>
+          <div class="h-8 w-32 bg-slate-900/60 animate-pulse rounded-xl border border-white/5"></div>
+          <div class="h-8 w-40 bg-slate-900/60 animate-pulse rounded-xl border border-white/5"></div>
         </div>
       </div>
 
     </section>
 
+    <!-- Interactive Leaflet.js Forensic Corridor Map (Clean Tech Product Container) -->
+    <section class="max-w-4xl mx-auto">
+      <div class="glass-card rounded-2xl border border-white/10 overflow-hidden shadow-2xl p-4 sm:p-5 space-y-3">
+        <div class="flex items-center justify-between text-xs font-mono text-slate-400 pb-1 border-b border-white/[0.06]">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-cyber-green shadow-[0_0_8px_#10B981]"></span>
+            <span class="text-white font-semibold tracking-wide font-sans text-sm">Lagos Forensic Corridor</span>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-brand-500/10 text-brand-400 border border-brand-500/20">GEO-SURVEILLANCE</span>
+          </div>
+          <div class="flex items-center gap-3 text-[11px] font-sans text-slate-400 hidden sm:flex">
+            <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-cyber-green"></span> Authentic</span>
+            <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-cyber-amber"></span> Moderate</span>
+            <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-cyber-red"></span> Ghost Hive</span>
+          </div>
+        </div>
+        
+        <!-- Leaflet Map Container -->
+        <div id="forensic-map" class="w-full h-80 sm:h-96 rounded-xl overflow-hidden border border-white/10"></div>
+      </div>
+    </section>
+
     <!-- Forensic Loading / Scan Progress (Hidden by default) -->
-    <div id="scan-loader" class="hidden max-w-2xl mx-auto p-6 glass-card rounded-2xl border border-cyber-cyan/50 shadow-[0_0_40px_rgba(0,240,255,0.25)] font-mono text-xs space-y-4">
-      <div class="flex items-center justify-between border-b border-cyber-border pb-3">
-        <div class="flex items-center gap-2.5 text-cyber-cyan">
+    <div id="scan-loader" class="hidden max-w-2xl mx-auto p-6 glass-card rounded-2xl border border-brand-500/40 shadow-[0_0_40px_rgba(99,102,241,0.2)] font-mono text-xs space-y-4">
+      <div class="flex items-center justify-between border-b border-white/10 pb-3">
+        <div class="flex items-center gap-2.5 text-brand-400">
           <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -277,12 +309,12 @@
       </div>
       <div class="space-y-1.5 text-slate-300" id="scan-log-lines">
         <div class="text-cyber-green">> Ingesting target brand identifier...</div>
-        <div class="text-cyber-cyan animate-pulse">> Querying physical extraction permits & shared kitchen bays...</div>
+        <div class="text-brand-400 animate-pulse">> Querying physical extraction permits & shared kitchen bays...</div>
       </div>
     </div>
 
     <!-- Error / Not Found Alert (Hidden by default) -->
-    <div id="error-alert" class="hidden max-w-2xl mx-auto p-5 rounded-2xl border border-cyber-red/50 bg-cyber-red/15 backdrop-blur-xl text-slate-200 space-y-3 shadow-[0_0_30px_rgba(255,26,83,0.2)]">
+    <div id="error-alert" class="hidden max-w-2xl mx-auto p-5 rounded-2xl border border-cyber-red/40 bg-cyber-red/10 backdrop-blur-2xl text-slate-200 space-y-3 shadow-2xl">
       <div class="flex items-start gap-3">
         <div class="text-cyber-red text-2xl">⚠️</div>
         <div class="space-y-1">
@@ -290,42 +322,30 @@
           <p class="text-xs text-slate-300" id="error-message">No facility matched this query.</p>
         </div>
       </div>
-      <div id="error-suggestions" class="pt-2 border-t border-cyber-red/25 flex flex-wrap gap-2 text-xs">
+      <div id="error-suggestions" class="pt-2 border-t border-cyber-red/20 flex flex-wrap gap-2 text-xs">
         <!-- Suggestions rendered here -->
       </div>
-    </div>
-
-    <!-- Interactive Leaflet.js Forensic Corridor Map -->
-    <div class="max-w-4xl mx-auto space-y-2">
-      <div class="flex items-center justify-between text-xs font-mono text-slate-400 px-1">
-        <span class="flex items-center gap-2">
-          <span class="w-2 h-2 rounded-full bg-cyber-green animate-ping"></span>
-          <span class="text-white font-bold tracking-wider">LAGOS FORENSIC CORRIDOR // GEO-RADAR BLIP MAP</span>
-        </span>
-        <span class="text-[11px] text-slate-400 hidden sm:inline">Click any blip to inspect facility dossier</span>
-      </div>
-      <div id="forensic-map" class="w-full h-80 rounded-xl border border-emerald-500/30 overflow-hidden my-6"></div>
     </div>
 
     <!-- Detailed Result Card (Forensic Dossier) -->
     <section id="result-card" class="hidden max-w-4xl mx-auto space-y-6 transition-all duration-300">
       
-      <!-- Main Dossier Container with Glassmorphism & Cyber Depth -->
-      <div class="glass-card rounded-2xl border border-cyber-border shadow-2xl overflow-hidden relative">
+      <!-- Main Dossier Container with Glassmorphism & Depth -->
+      <div class="glass-card rounded-2xl border border-white/10 shadow-2xl overflow-hidden relative">
         
-        <!-- Dossier Top Cyber Header Bar -->
-        <div class="bg-cyber-darker/90 px-6 py-4 border-b border-cyber-border flex flex-wrap items-center justify-between gap-3 font-mono text-xs">
+        <!-- Dossier Top Bar -->
+        <div class="bg-slate-900/90 px-6 py-4 border-b border-white/[0.06] flex flex-wrap items-center justify-between gap-3 font-mono text-xs">
           <div class="flex items-center gap-2.5">
-            <span class="w-2.5 h-2.5 rounded-sm bg-cyber-cyan shadow-[0_0_8px_#00f0ff]"></span>
+            <span class="w-2.5 h-2.5 rounded-sm bg-brand-400 shadow-[0_0_8px_#6366F1]"></span>
             <span class="text-slate-400">FACILITY CODE:</span>
             <span class="font-bold text-white tracking-wider" id="dossier-facility-code">LOS-LEK-09</span>
           </div>
 
           <div class="flex items-center gap-3">
-            <span class="px-2.5 py-1 rounded bg-slate-800/80 border border-cyber-border text-slate-300 text-[11px]" id="dossier-area-badge">
+            <span class="px-2.5 py-1 rounded-lg bg-slate-800/80 border border-white/10 text-slate-300 text-[11px]" id="dossier-area-badge">
               LEKKI PHASE 1, LAGOS
             </span>
-            <span class="px-2.5 py-1 rounded bg-cyber-cyan/15 border border-cyber-cyan/40 text-cyber-cyan font-bold text-[11px] shadow-[0_0_12px_rgba(0,240,255,0.2)]" id="dossier-match-confidence">
+            <span class="px-2.5 py-1 rounded-lg bg-brand-500/15 border border-brand-500/30 text-brand-300 font-bold text-[11px]" id="dossier-match-confidence">
               100% MATCH CONFIDENCE
             </span>
           </div>
@@ -333,16 +353,16 @@
 
         <div class="p-6 sm:p-8 space-y-8">
           
-          <!-- Hero Section: Target Brand & Ghost Index Dynamic Gauge -->
-          <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center border-b border-cyber-border/80 pb-8">
+          <!-- Hero Section: Target Brand & Ghost Index Gauge -->
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center border-b border-white/[0.08] pb-8">
             
             <!-- Left: Brand Info & Status Banner -->
             <div class="md:col-span-7 space-y-3.5">
               <div class="flex items-center gap-2">
-                <span class="text-xs font-mono uppercase px-2.5 py-0.5 rounded border" id="dossier-brand-type-badge">
+                <span class="text-xs font-mono uppercase px-2.5 py-0.5 rounded-full border font-medium" id="dossier-brand-type-badge">
                   VIRTUAL STOREFRONT
                 </span>
-                <span class="text-xs font-mono text-slate-400" id="dossier-brand-cuisine">
+                <span class="text-xs text-slate-400" id="dossier-brand-cuisine">
                   Gourmet Smashed Burgers & Truffle Fries
                 </span>
               </div>
@@ -351,7 +371,7 @@
                 Midnight Burger Lab
               </h2>
 
-              <!-- Risk Level Banner with glowing borders -->
+              <!-- Risk Level Banner -->
               <div class="p-4 rounded-xl border flex items-center gap-3.5 transition-all duration-300" id="dossier-risk-banner">
                 <div class="text-3xl" id="dossier-risk-icon">🚨</div>
                 <div>
@@ -366,13 +386,13 @@
             </div>
 
             <!-- Right: Ghost Index Score Gauge with Count-Up (0-100%) -->
-            <div class="md:col-span-5 flex flex-col items-center justify-center p-6 rounded-2xl bg-cyber-darker/90 border border-cyber-border/90 shadow-inner">
+            <div class="md:col-span-5 flex flex-col items-center justify-center p-6 rounded-2xl bg-slate-900/80 border border-white/5 shadow-inner">
               <span class="text-[11px] font-mono tracking-widest text-slate-400 uppercase mb-2">GHOST INDEX SCORE</span>
               
               <div class="relative w-40 h-40 flex items-center justify-center">
                 <!-- Circular SVG Progress Ring -->
                 <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-                  <circle cx="50" cy="50" r="40" stroke="#172033" stroke-width="8" fill="transparent"></circle>
+                  <circle cx="50" cy="50" r="40" stroke="#1E293B" stroke-width="8" fill="transparent"></circle>
                   <circle 
                     id="score-circle" 
                     cx="50" 
@@ -401,57 +421,57 @@
 
           </div>
 
-          <!-- Forensic Key Metrics (4-column grid) -->
-          <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5 font-mono text-xs">
+          <!-- Forensic Key Metrics (4-column grid in clean Linear tiles) -->
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5 text-xs">
             
-            <div class="bg-cyber-darker/80 p-3.5 rounded-xl border border-cyber-border">
-              <span class="text-[10px] text-slate-400 uppercase block">Co-Located Brands</span>
-              <span class="text-base font-bold text-white mt-1 block" id="metric-brands-count">7 BRANDS</span>
-              <span class="text-[11px] text-cyber-red" id="metric-brands-note">Sharing same room</span>
+            <div class="bg-slate-900/70 p-4 rounded-xl border border-white/5 space-y-1">
+              <span class="text-[10px] text-slate-400 uppercase font-mono tracking-wider block">Co-Located Brands</span>
+              <span class="text-base sm:text-lg font-bold text-white block" id="metric-brands-count">7 BRANDS</span>
+              <span class="text-[11px] text-cyber-red font-mono" id="metric-brands-note">Sharing same room</span>
             </div>
 
-            <div class="bg-cyber-darker/80 p-3.5 rounded-xl border border-cyber-border">
-              <span class="text-[10px] text-slate-400 uppercase block">Dine-in Seating</span>
-              <span class="text-base font-bold text-white mt-1 block" id="metric-seating">0 SEATS</span>
-              <span class="text-[11px] text-slate-400" id="metric-seating-note">Pickup hatch only</span>
+            <div class="bg-slate-900/70 p-4 rounded-xl border border-white/5 space-y-1">
+              <span class="text-[10px] text-slate-400 uppercase font-mono tracking-wider block">Dine-in Seating</span>
+              <span class="text-base sm:text-lg font-bold text-white block" id="metric-seating">0 SEATS</span>
+              <span class="text-[11px] text-slate-400 font-mono" id="metric-seating-note">Pickup hatch only</span>
             </div>
 
-            <div class="bg-cyber-darker/80 p-3.5 rounded-xl border border-cyber-border">
-              <span class="text-[10px] text-slate-400 uppercase block">Inspection Status</span>
-              <span class="text-base font-bold text-white mt-1 block" id="metric-inspection-grade">GRADE C</span>
-              <span class="text-[11px] text-cyber-amber truncate block" id="metric-inspection-desc">Sanitary Notice</span>
+            <div class="bg-slate-900/70 p-4 rounded-xl border border-white/5 space-y-1">
+              <span class="text-[10px] text-slate-400 uppercase font-mono tracking-wider block">Inspection Status</span>
+              <span class="text-base sm:text-lg font-bold text-white block" id="metric-inspection-grade">GRADE C</span>
+              <span class="text-[11px] text-cyber-amber font-mono truncate block" id="metric-inspection-desc">Sanitary Notice</span>
             </div>
 
-            <div class="bg-cyber-darker/80 p-3.5 rounded-xl border border-cyber-border">
-              <span class="text-[10px] text-slate-400 uppercase block">Cross-Contamination</span>
-              <span class="text-base font-bold text-white mt-1 block" id="metric-risk-tag">CRITICAL</span>
-              <span class="text-[11px] text-slate-400" id="metric-risk-desc">Shared fryers & vats</span>
+            <div class="bg-slate-900/70 p-4 rounded-xl border border-white/5 space-y-1">
+              <span class="text-[10px] text-slate-400 uppercase font-mono tracking-wider block">Cross-Contamination</span>
+              <span class="text-base sm:text-lg font-bold text-white block" id="metric-risk-tag">CRITICAL</span>
+              <span class="text-[11px] text-slate-400 font-mono" id="metric-risk-desc">Shared fryers & vats</span>
             </div>
 
           </div>
 
-          <!-- Interactive 2D Node Graph Canvas (Visual Extraction & Co-Location Mapping) -->
+          <!-- Interactive 2D Node Graph Canvas -->
           <div class="space-y-3 pt-2">
-            <div class="flex items-center justify-between border-b border-cyber-border pb-2.5">
+            <div class="flex items-center justify-between border-b border-white/[0.08] pb-2.5">
               <div class="flex items-center gap-2">
-                <span class="text-cyber-cyan text-base">🕸️</span>
+                <span class="text-brand-400 text-base">🕸️</span>
                 <div>
                   <h3 class="text-sm sm:text-base font-bold text-white font-mono flex items-center gap-2">
                     <span>FACILITY EXTRACTION & CO-LOCATION TOPOLOGY</span>
-                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-cyber-cyan/10 text-cyber-cyan border border-cyber-cyan/30">2D LIVE NODE MAP</span>
+                    <span class="text-[10px] px-2 py-0.5 rounded-full bg-brand-500/10 text-brand-400 border border-brand-500/20">2D LIVE NODE MAP</span>
                   </h3>
-                  <p class="text-xs text-slate-400">Interactive physics topology of central physical kitchen facility connecting via energy tentacles to virtual storefronts</p>
+                  <p class="text-xs text-slate-400">Interactive physics topology of central physical kitchen facility connecting to virtual storefronts</p>
                 </div>
               </div>
               <div class="hidden sm:flex items-center gap-3 text-[11px] font-mono text-slate-400">
-                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-cyber-cyan shadow-[0_0_6px_#00f0ff]"></span> Facility Hub</span>
-                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-cyber-red shadow-[0_0_6px_#ff1a53]"></span> Virtual Brand</span>
-                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-cyber-green shadow-[0_0_6px_#00ff88]"></span> Authentic</span>
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-brand-400 shadow-[0_0_6px_#6366F1]"></span> Facility Hub</span>
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-cyber-red shadow-[0_0_6px_#F43F5E]"></span> Virtual Brand</span>
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-cyber-green shadow-[0_0_6px_#10B981]"></span> Authentic</span>
               </div>
             </div>
 
             <!-- Canvas Container -->
-            <div class="relative rounded-2xl overflow-hidden border border-cyber-border/80 bg-cyber-darker/95 shadow-inner">
+            <div class="relative rounded-2xl overflow-hidden border border-white/10 bg-slate-900/95 shadow-inner">
               <canvas id="node-graph-canvas" class="w-full h-72 sm:h-80 block cursor-crosshair"></canvas>
               <div class="absolute bottom-2.5 left-3.5 text-[10px] font-mono text-slate-500 pointer-events-none flex items-center gap-2">
                 <span>[ HOVER NODES TO INSPECT CONNECTIVITY // PULSE ENERGY ACTIVE ]</span>
@@ -461,12 +481,12 @@
 
           <!-- Co-Located Brands Grid Section -->
           <div class="space-y-4">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-cyber-border pb-3">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/[0.08] pb-3">
               <div>
                 <h3 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
-                  <span class="text-cyber-cyan">🏢</span>
+                  <span class="text-brand-400">🏢</span>
                   <span>Co-Located Brands Cooked in the Same Room</span>
-                  <span class="text-xs font-mono px-2 py-0.5 rounded-full bg-cyber-cyan/10 text-cyber-cyan border border-cyber-cyan/30" id="co-located-badge-count">
+                  <span class="text-xs font-mono px-2 py-0.5 rounded-full bg-brand-500/10 text-brand-400 border border-brand-500/30" id="co-located-badge-count">
                     7 BRANDS
                   </span>
                 </h3>
@@ -483,8 +503,8 @@
           </div>
 
           <!-- Physical Facility Details Dossier -->
-          <div class="p-5 sm:p-6 rounded-2xl bg-cyber-darker/90 border border-cyber-border space-y-4">
-            <div class="flex items-center justify-between border-b border-cyber-border/70 pb-3">
+          <div class="p-5 sm:p-6 rounded-2xl bg-slate-900/80 border border-white/10 space-y-4">
+            <div class="flex items-center justify-between border-b border-white/[0.08] pb-3">
               <h3 class="font-mono text-sm font-bold text-white flex items-center gap-2">
                 <span class="text-cyber-green">📍</span>
                 <span>PHYSICAL FACILITY DOSSIER</span>
@@ -503,7 +523,7 @@
 
               <div class="space-y-1">
                 <span class="text-[10px] font-mono uppercase text-slate-400">Physical Street Address</span>
-                <p class="font-semibold text-cyber-cyan text-sm flex items-center gap-1.5" id="facility-address">
+                <p class="font-semibold text-brand-400 text-sm flex items-center gap-1.5" id="facility-address">
                   Plot 14 Admiralty Way, Lekki Phase 1, Lagos
                 </p>
                 <p class="text-slate-400 font-mono text-[11px]" id="facility-permits">Permit: Commercial Commissary #LSSC-2024-8841</p>
@@ -511,7 +531,7 @@
             </div>
 
             <!-- Regulatory & Shared Equipment -->
-            <div class="pt-3 border-t border-cyber-border/50 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-mono">
+            <div class="pt-3 border-t border-white/[0.06] grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-mono">
               <div>
                 <span class="text-slate-400 block text-[10px] uppercase">Inspection Notice / Regulatory Status:</span>
                 <p class="text-slate-200 mt-0.5 text-[11px]" id="facility-inspection-full">
@@ -537,7 +557,7 @@
     <!-- Default State: Lagos Hotspots Grid & Surveillance Explorer (Shown when no search is active) -->
     <section id="default-dashboard" class="max-w-5xl mx-auto space-y-6">
       
-      <div class="flex items-center justify-between border-b border-cyber-border pb-3">
+      <div class="flex items-center justify-between border-b border-white/[0.08] pb-3">
         <div>
           <h2 class="text-lg font-bold text-white flex items-center gap-2">
             <span>🗺️</span>
@@ -545,7 +565,7 @@
           </h2>
           <p class="text-xs text-slate-400">Select any monitored corridor in Lagos to inspect active delivery kitchens</p>
         </div>
-        <span class="text-xs font-mono text-cyber-cyan bg-cyber-cyan/10 border border-cyber-cyan/30 px-2.5 py-0.5 rounded shadow-[0_0_10px_rgba(0,240,255,0.2)]">
+        <span class="text-xs font-mono text-brand-400 bg-brand-500/10 border border-brand-500/20 px-2.5 py-0.5 rounded-full">
           LAGOS URBAN MESH
         </span>
       </div>
@@ -558,8 +578,8 @@
       <!-- Educational Forensic Breakdown: How Ghost Kitchens Operate in Lagos -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
         
-        <div class="glass-card p-5 rounded-2xl border border-cyber-border space-y-2 tilt-card">
-          <div class="w-8 h-8 rounded-lg bg-cyber-red/15 border border-cyber-red/35 flex items-center justify-center text-cyber-red font-mono font-bold text-xs shadow-[0_0_10px_rgba(255,26,83,0.3)]">
+        <div class="glass-card p-5 rounded-2xl border border-white/10 space-y-2 tilt-card shadow-lg">
+          <div class="w-8 h-8 rounded-xl bg-cyber-red/10 border border-cyber-red/30 flex items-center justify-center text-cyber-red font-mono font-bold text-xs shadow-sm">
             01
           </div>
           <h3 class="font-bold text-white text-sm">Storefront Illusion</h3>
@@ -568,8 +588,8 @@
           </p>
         </div>
 
-        <div class="glass-card p-5 rounded-2xl border border-cyber-border space-y-2 tilt-card">
-          <div class="w-8 h-8 rounded-lg bg-cyber-amber/15 border border-cyber-amber/35 flex items-center justify-center text-cyber-amber font-mono font-bold text-xs shadow-[0_0_10px_rgba(245,158,11,0.3)]">
+        <div class="glass-card p-5 rounded-2xl border border-white/10 space-y-2 tilt-card shadow-lg">
+          <div class="w-8 h-8 rounded-xl bg-cyber-amber/10 border border-cyber-amber/30 flex items-center justify-center text-cyber-amber font-mono font-bold text-xs shadow-sm">
             02
           </div>
           <h3 class="font-bold text-white text-sm">Shared Fryers & Allergens</h3>
@@ -578,8 +598,8 @@
           </p>
         </div>
 
-        <div class="glass-card p-5 rounded-2xl border border-cyber-border space-y-2 tilt-card">
-          <div class="w-8 h-8 rounded-lg bg-cyber-green/15 border border-cyber-green/35 flex items-center justify-center text-cyber-green font-mono font-bold text-xs shadow-[0_0_10px_rgba(0,255,136,0.3)]">
+        <div class="glass-card p-5 rounded-2xl border border-white/10 space-y-2 tilt-card shadow-lg">
+          <div class="w-8 h-8 rounded-xl bg-cyber-green/10 border border-cyber-green/30 flex items-center justify-center text-cyber-green font-mono font-bold text-xs shadow-sm">
             03
           </div>
           <h3 class="font-bold text-white text-sm">Authentic Transparency</h3>
@@ -595,10 +615,10 @@
   </main>
 
   <!-- Footer -->
-  <footer class="border-t border-cyber-border/70 bg-cyber-darker/90 mt-12 py-6 text-xs font-mono text-slate-500 z-20">
+  <footer class="border-t border-white/[0.06] bg-obsidian-900/90 mt-12 py-6 text-xs font-mono text-slate-500 z-20">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
       <div class="flex items-center gap-2">
-        <span class="w-2 h-2 rounded-full bg-cyber-cyan shadow-[0_0_6px_#00f0ff]"></span>
+        <span class="w-2 h-2 rounded-full bg-brand-400 shadow-[0_0_6px_#6366F1]"></span>
         <span class="text-slate-400">GHOST KITCHEN RADAR // LAGOS STATE DEPLOYMENT</span>
       </div>
       <div>
@@ -607,7 +627,7 @@
     </div>
   </footer>
 
-  <!-- Scripts -->
+  <!-- Application Script -->
   <script src="/app.js"></script>
 </body>
 </html>
